@@ -38,12 +38,8 @@ fun PropertyDetailScreen(
     val property = PropertyRepository.getPropertyById(propertyId) ?: return
     val scrollState = rememberScrollState()
     
-    // Images for pager
-    val propertyImages = listOf(
-        R.drawable.detail_properti1,
-        R.drawable.detail_properti2,
-        R.drawable.detail_properti3
-    )
+    // Images for pager from property model
+    val propertyImages = property.detailImages
     val pagerState = rememberPagerState(pageCount = { propertyImages.size })
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
@@ -71,23 +67,30 @@ fun PropertyDetailScreen(
                     )
                 }
 
-                // Pager Indicators
-                Row(
-                    Modifier
-                        .height(50.dp)
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 60.dp),
-                    horizontalArrangement = Arrangement.Center
+                // Photo Counter Badge
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 64.dp, end = 24.dp), // Increased padding to stay above the white card
+                    shape = RoundedCornerShape(8.dp),
+                    color = Color.Black.copy(alpha = 0.7f) // Slightly darker for better contrast
                 ) {
-                    repeat(propertyImages.size) { iteration ->
-                        val color = if (pagerState.currentPage == iteration) BrandYellow else Color.White.copy(alpha = 0.5f)
-                        Box(
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .clip(CircleShape)
-                                .background(color)
-                                .size(8.dp)
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_photo),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "${pagerState.currentPage + 1}/${propertyImages.size}",
+                            color = Color.White,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -122,7 +125,7 @@ fun PropertyDetailScreen(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_heart),
+                            painter = painterResource(id = R.drawable.ic_like),
                             contentDescription = "Favorite",
                             modifier = Modifier.size(20.dp),
                             tint = Color.Gray
@@ -254,7 +257,7 @@ fun PropertyDetailScreen(
                                 "Parkir Mobil" to R.drawable.ic_parkir,
                                 "Sprinkler Water" to R.drawable.ic_sprinkler,
                                 "Permit Included" to R.drawable.ic_permit,
-                                "APAR" to R.drawable.ic_sanitasi, // Placeholder for APAR
+                                "APAR" to R.drawable.ic_apar,
                                 "Outdoor" to R.drawable.ic_outdoor
                             )
 

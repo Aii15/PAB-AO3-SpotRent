@@ -174,10 +174,10 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Categories
+            // Categories with Edge Cutting Affordance
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 24.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp), 
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(categories) { category ->
@@ -187,11 +187,11 @@ fun HomeScreen(
                         shape = RoundedCornerShape(20.dp),
                         color = if (isSelected) BrandYellow else Color.White,
                         border = if (isSelected) null else BorderStroke(1.dp, Color(0xFFEEEEEE)),
-                        shadowElevation = if (isSelected) 4.dp else 0.dp
+                        shadowElevation = if (isSelected) 4.dp else 2.dp
                     ) {
                         Text(
                             text = category,
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                            modifier = Modifier.padding(horizontal = 28.dp, vertical = 8.dp), // Increased horizontal padding to force peeking
                             fontSize = 14.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             color = BrandDarkGray
@@ -271,7 +271,7 @@ fun PropertyCard(property: Property, onClick: () -> Unit) {
         Column {
             Box(modifier = Modifier.fillMaxWidth().height(140.dp)) {
                 Image(
-                    painter = painterResource(id = R.drawable.img_property),
+                    painter = painterResource(id = property.thumbnailRes),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -288,7 +288,7 @@ fun PropertyCard(property: Property, onClick: () -> Unit) {
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_heart),
+                            painter = painterResource(id = R.drawable.ic_like),
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = Color.Gray

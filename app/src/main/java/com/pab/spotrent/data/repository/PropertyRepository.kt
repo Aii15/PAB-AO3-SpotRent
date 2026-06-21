@@ -1,5 +1,6 @@
 package com.pab.spotrent.data.repository
 
+import com.pab.spotrent.R
 import com.pab.spotrent.data.model.Property
 
 object PropertyRepository {
@@ -12,7 +13,8 @@ object PropertyRepository {
             price = 15000000,
             rating = 4.9,
             reviews = 70,
-            imageUrl = "https://images.unsplash.com/photo-1596422846543-75c6fc18a593?q=80&w=1000&auto=format&fit=crop",
+            thumbnailRes = R.drawable.prop_default,
+            detailImages = listOf(R.drawable.prop_kotatua_2, R.drawable.prop_lawangsewu_1, R.drawable.prop_lawangsewu_2),
             type = "Komersial",
             specifications = listOf("Sanitasi", "CCTV", "Sprinkler Water", "APAR", "Listrik dan Penerangan", "Parkir Mobil", "Permit Included", "Outdoor")
         ),
@@ -24,7 +26,8 @@ object PropertyRepository {
             price = 150000000,
             rating = 4.9,
             reviews = 70,
-            imageUrl = "https://images.unsplash.com/photo-1626021469790-27f101188339?q=80&w=1000&auto=format&fit=crop",
+            thumbnailRes = R.drawable.prop_lawangsewu_1,
+            detailImages = listOf(R.drawable.prop_lawangsewu_2, R.drawable.prop_lawangsewu_3),
             type = "Heritage",
             specifications = listOf("Sanitasi", "CCTV", "Sprinkler Water", "APAR", "Listrik dan Penerangan", "Parkir Mobil", "Permit Included", "Outdoor")
         ),
@@ -36,7 +39,8 @@ object PropertyRepository {
             price = 5000000,
             rating = 4.8,
             reviews = 45,
-            imageUrl = "https://images.unsplash.com/photo-1598425237654-4fc758e50a93?q=80&w=1000&auto=format&fit=crop",
+            thumbnailRes = R.drawable.prop_studio_1,
+            detailImages = listOf(R.drawable.prop_studio_2, R.drawable.prop_studio_1),
             type = "Studio",
             specifications = listOf("AC", "WiFi", "Listrik", "Ruang Ganti")
         ),
@@ -48,7 +52,8 @@ object PropertyRepository {
             price = 12000000,
             rating = 4.7,
             reviews = 30,
-            imageUrl = "https://images.unsplash.com/photo-1580587767516-24e531818223?q=80&w=1000&auto=format&fit=crop",
+            thumbnailRes = R.drawable.prop_villa_puncak_1,
+            detailImages = listOf(R.drawable.prop_villa_puncak_2, R.drawable.prop_villa_puncak_1),
             type = "Hunian",
             specifications = listOf("Kolam Renang", "Dapur", "Parkir", "Pemandangan")
         ),
@@ -60,7 +65,8 @@ object PropertyRepository {
             price = 8000000,
             rating = 5.0,
             reviews = 20,
-            imageUrl = "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=1000&auto=format&fit=crop",
+            thumbnailRes = R.drawable.prop_lanskapsawah_1,
+            detailImages = listOf(R.drawable.prop_lanskapsawah_2, R.drawable.prop_lanskapsawah_1),
             type = "Lanskap",
             specifications = listOf("Akses Jalan", "Listrik Genset", "Pemandangan Alam")
         )
