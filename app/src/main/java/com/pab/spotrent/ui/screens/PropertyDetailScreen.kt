@@ -2,15 +2,12 @@ package com.pab.spotrent.ui.screens
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,231 +15,386 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import com.pab.spotrent.R
 import com.pab.spotrent.data.repository.PropertyRepository
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.pab.spotrent.ui.theme.BrandDarkBlue
+import com.pab.spotrent.ui.theme.BrandDarkGray
+import com.pab.spotrent.ui.theme.BrandYellow
 import java.text.NumberFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PropertyDetailScreen(propertyId: Int, onBackClick: () -> Unit) {
+fun PropertyDetailScreen(
+    propertyId: Int,
+    onBackClick: () -> Unit
+) {
     val property = PropertyRepository.getPropertyById(propertyId) ?: return
-    val scope = rememberCoroutineScope()
-    var showDatePicker by remember { mutableStateOf(false) }
-    var selectedDateRange by remember { mutableStateOf("Pilih Tanggal") }
-    var paymentStatus by remember { mutableStateOf("Idle") } // Idle, Loading, Success
+    val scrollState = rememberScrollState()
+    
+    // Images for pager
+    val propertyImages = listOf(
+        R.drawable.detail_properti1,
+        R.drawable.detail_properti2,
+        R.drawable.detail_properti3
+    )
+    val pagerState = rememberPagerState(pageCount = { propertyImages.size })
 
-    val dateRangePickerState = rememberDateRangePickerState()
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("SpotRent", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {}) { Icon(Icons.Default.Share, contentDescription = "Share") }
-                    IconButton(onClick = {}) { Icon(Icons.Default.FavoriteBorder, contentDescription = "Favorite", tint = Color.Red) }
-                }
-            )
-        }
-    ) { paddingValues ->
-        if (paymentStatus == "Loading") {
-            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)).clickable(enabled = false) {}, contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Color(0xFFF0D050))
-            }
-        }
-
-        if (paymentStatus == "Success") {
-            AlertDialog(
-                onDismissRequest = { paymentStatus = "Idle" },
-                confirmButton = {
-                    Button(onClick = { paymentStatus = "Idle" }) { Text("OK") }
-                },
-                title = { Text("Pembayaran Berhasil") },
-                text = { Text("Pemesanan lokasi ${property.name} telah berhasil disimulasikan.") }
-            )
-        }
-
-        LazyColumn(
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
+        // Main Content
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .verticalScroll(scrollState)
         ) {
-            // Image Gallery (Simplified)
-            item {
-                AsyncImage(
-                    model = property.imageUrl,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            // Title and Description
-            item {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = property.name, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Text(text = property.description, fontSize = 14.sp, color = Color.Gray)
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        InfoChip(icon = Icons.Default.LocationOn, label = property.location)
-                        InfoChip(icon = Icons.Default.Category, label = "Tipe: ${property.type}")
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFF0D050), modifier = Modifier.size(20.dp))
-                            Text(text = property.rating.toString(), fontWeight = FontWeight.Bold)
-                            Text(text = " (${property.reviews} Reviews)", color = Color.Gray, fontSize = 12.sp)
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Operator
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(modifier = Modifier.size(40.dp), shape = CircleShape, color = Color(0xFF4CAF50)) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("KAI", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text("PT. Kereta Api Wisata", fontWeight = FontWeight.Bold)
-                            Text("Pengelola Operasional", fontSize = 12.sp, color = Color.Gray)
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Text(text = "Spesifikasi Properti", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            }
-
-            // Specifications Grid
-            item {
-                androidx.compose.foundation.layout.FlowRow(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    maxItemsInEachRow = 2
-                ) {
-                    property.specifications.forEach { spec ->
-                        SpecificationItem(spec)
-                    }
-                }
-            }
-
-            // Price and Calendar
-            item {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Text(text = "IDR ${formatPrice(property.price)}", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Text(text = "Untuk 3 Hari (DD-MM-YY - DD-MM-YY)", fontSize = 12.sp, color = Color.Gray)
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // Calendar Simulation Button
-                    Button(
-                        onClick = { showDatePicker = true },
-                        modifier = Modifier.fillMaxWidth().height(150.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0))
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Default.DateRange, contentDescription = null, tint = Color.Black, modifier = Modifier.size(32.dp))
-                            Text(text = selectedDateRange, color = Color.Black)
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Payment Simulation Button
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                paymentStatus = "Loading"
-                                delay(2000)
-                                paymentStatus = "Success"
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth().height(56.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF0D050))
-                    ) {
-                        Text("Bayar Sekarang", color = Color.Black, fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-        }
-
-        if (showDatePicker) {
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(onClick = {
-                        val start = dateRangePickerState.selectedStartDateMillis
-                        val end = dateRangePickerState.selectedEndDateMillis
-                        if (start != null && end != null) {
-                            selectedDateRange = "${formatDate(start)} - ${formatDate(end)}"
-                        }
-                        showDatePicker = false
-                    }) { Text("Pilih") }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) { Text("Batal") }
-                }
+            // Header Image with Pager
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(350.dp)
             ) {
-                DateRangePicker(state = dateRangePickerState, modifier = Modifier.height(400.dp))
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    Image(
+                        painter = painterResource(id = propertyImages[page]),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
+                // Pager Indicators
+                Row(
+                    Modifier
+                        .height(50.dp)
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 60.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    repeat(propertyImages.size) { iteration ->
+                        val color = if (pagerState.currentPage == iteration) BrandYellow else Color.White.copy(alpha = 0.5f)
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .clip(CircleShape)
+                                .background(color)
+                                .size(8.dp)
+                        )
+                    }
+                }
+
+                // Back Button
+                Surface(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .size(40.dp)
+                        .clickable { onBackClick() },
+                    shape = CircleShape,
+                    color = Color.White
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_back),
+                            contentDescription = "Back",
+                            modifier = Modifier.size(24.dp),
+                            tint = Color.Black
+                        )
+                    }
+                }
+
+                // Favorite Button
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(24.dp)
+                        .size(40.dp),
+                    shape = CircleShape,
+                    color = Color.White
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_heart),
+                            contentDescription = "Favorite",
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.Gray
+                        )
+                    }
+                }
+            }
+
+            // Property Info Card
+            Surface(
+                modifier = Modifier
+                    .offset(y = (-40).dp)
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(topStart = 48.dp, topEnd = 48.dp),
+                color = Color.White
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    // Pull bar
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .width(40.dp)
+                            .height(4.dp)
+                            .background(Color.LightGray, RoundedCornerShape(2.dp))
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text(
+                        text = property.name,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = BrandDarkGray
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_location),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = Color.Red
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = property.location,
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Box(modifier = Modifier.width(1.dp).height(12.dp).background(Color.LightGray))
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_star),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = BrandYellow
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${property.rating} (${property.reviews} Reviews)",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Normal, // Changed from Bold as per request
+                            color = BrandDarkGray
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text(
+                        text = property.description,
+                        fontSize = 14.sp,
+                        color = BrandDarkGray,
+                        lineHeight = 20.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Pengelola
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Color(0xFFEEEEEE))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(40.dp),
+                                shape = CircleShape,
+                                color = Color(0xFF2E7D32)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("KAI", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(text = "PT. Kereta Api Wisata", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(text = "Pengelola Operasional", fontSize = 12.sp, color = Color.Gray)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Spesifikasi
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Color(0xFFEEEEEE))
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Spesifikasi Properti", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            val specs = listOf(
+                                "Sanitasi" to R.drawable.ic_sanitasi,
+                                "Listrik dan Penerangan" to R.drawable.ic_listrik,
+                                "CCTV" to R.drawable.ic_cctv,
+                                "Parkir Mobil" to R.drawable.ic_parkir,
+                                "Sprinkler Water" to R.drawable.ic_sprinkler,
+                                "Permit Included" to R.drawable.ic_permit,
+                                "APAR" to R.drawable.ic_sanitasi, // Placeholder for APAR
+                                "Outdoor" to R.drawable.ic_outdoor
+                            )
+
+                            Column {
+                                specs.chunked(2).forEach { rowSpecs ->
+                                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                                        rowSpecs.forEach { spec ->
+                                            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                                                Icon(
+                                                    painter = painterResource(id = spec.second),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(20.dp),
+                                                    tint = BrandDarkGray
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp)) // Reduced spacer
+                                                Text(
+                                                    text = spec.first, 
+                                                    fontSize = 11.sp, // Slightly smaller font to fit in one line
+                                                    color = BrandDarkGray,
+                                                    maxLines = 1
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Ulasan
+                    Divider(color = Color(0xFFEEEEEE))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "Ulasan", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_star),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = BrandYellow
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${property.rating} ( ${property.reviews} Ulasan )",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal // Changed from Bold as per request
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(5) {
+                            ReviewCard()
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(120.dp))
+                }
+            }
+        }
+
+        // Fixed Bottom Bar
+        Surface(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(90.dp),
+            color = Color.White,
+            shadowElevation = 16.dp
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = "IDR ${formatPrice(property.price)}",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = BrandDarkGray
+                    )
+                    Text(text = "Per Hari", fontSize = 12.sp, color = Color.Gray)
+                }
+                
+                Button(
+                    onClick = { },
+                    modifier = Modifier
+                        .width(160.dp)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
+                ) {
+                    Text(text = "Pesan", color = BrandDarkGray, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
             }
         }
     }
 }
 
 @Composable
-fun InfoChip(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null, tint = Color.Red, modifier = Modifier.size(16.dp))
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(text = label, fontSize = 12.sp, color = Color.Black)
-    }
-}
-
-@Composable
-fun SpecificationItem(label: String) {
-    Row(
-        modifier = Modifier
-            .width(160.dp)
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+fun ReviewCard() {
+    Surface(
+        modifier = Modifier.width(280.dp),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, Color(0xFFEEEEEE))
     ) {
-        Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.Gray)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = label, fontSize = 12.sp)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    modifier = Modifier.size(32.dp),
+                    shape = CircleShape,
+                    color = Color(0xFF2E7D32)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text("A", color = Color.White, fontSize = 12.sp)
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(text = "Anonim", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(text = "DD-MM-YYYY", fontSize = 10.sp, color = Color.Gray)
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row {
+                repeat(5) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_star),
+                        contentDescription = null,
+                        modifier = Modifier.size(12.dp),
+                        tint = BrandYellow
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Pellentesque Aliquam Massa Neque.",
+                fontSize = 12.sp,
+                color = BrandDarkGray,
+                maxLines = 3
+            )
+        }
     }
-}
-
-fun formatDate(millis: Long): String {
-    val formatter = java.text.SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    return formatter.format(Date(millis))
 }
