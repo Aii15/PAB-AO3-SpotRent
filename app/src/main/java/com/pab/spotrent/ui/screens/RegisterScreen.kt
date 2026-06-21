@@ -12,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -20,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pab.spotrent.R
 import com.pab.spotrent.ui.theme.BrandDarkBlue
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandLightGray
@@ -28,12 +26,13 @@ import com.pab.spotrent.ui.theme.BrandLinkBlue
 import com.pab.spotrent.ui.theme.BrandYellow
 
 @Composable
-fun LoginScreen(
-    onLoginSuccess: () -> Unit,
-    onRegisterClick: () -> Unit
+fun RegisterScreen(
+    onRegisterSuccess: () -> Unit,
+    onLoginClick: () -> Unit
 ) {
     var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -42,7 +41,7 @@ fun LoginScreen(
     ) {
         // Background Pattern
         Image(
-            painter = painterResource(id = R.drawable.bg_login),
+            painter = painterResource(id = com.pab.spotrent.R.drawable.bg_login),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -60,7 +59,7 @@ fun LoginScreen(
         ) {
             // Logo from drawable
             Image(
-                painter = painterResource(id = R.drawable.logo_sptrent),
+                painter = painterResource(id = com.pab.spotrent.R.drawable.logo_sptrent),
                 contentDescription = "Logo SpotRent",
                 modifier = Modifier.size(120.dp)
             )
@@ -75,7 +74,7 @@ fun LoginScreen(
             )
         }
 
-        // Bottom section with Login Card
+        // Bottom section with Register Card
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -91,13 +90,13 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Login",
+                    text = "Register",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = BrandDarkGray
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 // Username/Email field
                 OutlinedTextField(
@@ -140,18 +139,40 @@ fun LoginScreen(
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Login Button
+                // Confirm Password field
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    placeholder = { Text("Confirm Password", color = Color.Gray) },
+                    leadingIcon = {
+                        Icon(Icons.Default.Lock, contentDescription = null, tint = BrandDarkGray)
+                    },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = BrandLightGray,
+                        unfocusedContainerColor = BrandLightGray,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent
+                    ),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Register Button
                 Button(
-                    onClick = onLoginSuccess,
+                    onClick = onRegisterSuccess,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(28.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
                 ) {
-                    Text("Masuk", color = BrandDarkGray, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("Daftar", color = BrandDarkGray, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -160,14 +181,14 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Register Link
+                // Login Link
                 Row {
-                    Text(text = "Belum Punya Akun? ", color = BrandDarkGray)
+                    Text(text = "Sudah Punya Akun? ", color = BrandDarkGray)
                     Text(
-                        text = "Daftar",
+                        text = "Masuk",
                         color = BrandLinkBlue,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { onRegisterClick() }
+                        modifier = Modifier.clickable { onLoginClick() }
                     )
                 }
             }
