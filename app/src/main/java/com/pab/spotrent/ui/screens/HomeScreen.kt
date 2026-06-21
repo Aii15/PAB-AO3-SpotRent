@@ -2,120 +2,257 @@ package com.pab.spotrent.ui.screens
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import com.pab.spotrent.R
 import com.pab.spotrent.data.model.Property
 import com.pab.spotrent.data.repository.PropertyRepository
+import com.pab.spotrent.ui.theme.BrandDarkBlue
+import com.pab.spotrent.ui.theme.BrandDarkGray
+import com.pab.spotrent.ui.theme.BrandYellow
+import com.pab.spotrent.ui.theme.Poppins
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
+import com.pab.spotrent.ui.theme.SpotRentTheme
 import java.text.NumberFormat
 import java.util.*
 
 @Composable
-fun HomeScreen(onPropertyClick: (Int) -> Unit) {
+fun HomeScreen(
+    onPropertyClick: (Int) -> Unit,
+    onLoginClick: () -> Unit
+) {
     val properties = PropertyRepository.dummyProperties
+    val categories = listOf("Semua", "Komersial", "Hunian", "Lanskap", "Studio", "Heritage")
+    var selectedCategory by remember { mutableStateOf("Semua") }
+    var searchQuery by remember { mutableStateOf("") }
 
-    Scaffold(
-        bottomBar = {
-            BottomNavigationBar()
-        }
-    ) { paddingValues ->
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
+        // Main Scrollable Content
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
-            // Header Image with Search
+            // Hero Section
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
+                    .height(380.dp)
+                    .clip(RoundedCornerShape(bottomStart = 64.dp, bottomEnd = 64.dp))
             ) {
-                AsyncImage(
-                    model = "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop",
+                Image(
+                    painter = painterResource(id = R.drawable.bg_hero),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)))
+                Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.4f)))
 
                 Column(
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp)
                 ) {
+                    Spacer(modifier = Modifier.height(48.dp))
+                    
+                    // Top Bar
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = R.drawable.logo_spotrent),
+                                contentDescription = null,
+                                modifier = Modifier.size(40.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "SpotRent",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
+                        
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = BrandYellow,
+                            modifier = Modifier.clickable { onLoginClick() }
+                        ) {
+                            Text(
+                                text = "Masuk",
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = BrandDarkGray
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(40.dp))
+
                     Text(
-                        text = "Temukan Lokasi Syuting Terbaik Dalam Sekejap",
+                        text = "Temukan Lokasi\nSyuting Terbaik",
+                        color = Color.White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 40.sp
+                    )
+                    Text(
+                        text = "Dalam Sekejap",
                         color = Color.White,
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        fontWeight = FontWeight.Medium
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Search Bar
                     Surface(
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        color = Color.White.copy(alpha = 0.9f)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(28.dp),
+                        color = Color.White
                     ) {
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
-                                Text("Lokasi", fontSize = 10.sp, color = Color.Gray)
-                                Text("All", fontSize = 14.sp, color = Color.Black)
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_search),
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = Color.Gray
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            
+                            Box(contentAlignment = Alignment.CenterStart) {
+                                if (searchQuery.isEmpty()) {
+                                    Text(
+                                        text = "Cari Lokasi Syuting",
+                                        color = Color.Gray,
+                                        fontSize = 14.sp
+                                    )
+                                }
+                                BasicTextField(
+                                    value = searchQuery,
+                                    onValueChange = { searchQuery = it },
+                                    textStyle = TextStyle(
+                                        fontFamily = Poppins,
+                                        fontSize = 14.sp,
+                                        color = BrandDarkGray
+                                    ),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true
+                                )
                             }
                         }
                     }
                 }
+            }
 
-                // Logo and Login/Signup button in header
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("SpotRent", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                    Button(
-                        onClick = {},
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF0D050)),
-                        shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Categories with Edge Cutting Affordance
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 24.dp), 
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(categories) { category ->
+                    val isSelected = category == selectedCategory
+                    Surface(
+                        modifier = Modifier.clickable { selectedCategory = category },
+                        shape = RoundedCornerShape(20.dp),
+                        color = if (isSelected) BrandYellow else Color.White,
+                        border = if (isSelected) null else BorderStroke(1.dp, Color(0xFFEEEEEE)),
+                        shadowElevation = if (isSelected) 4.dp else 2.dp
                     ) {
-                        Text("Daftar / Masuk", fontSize = 12.sp, color = Color.Black)
+                        Text(
+                            text = category,
+                            modifier = Modifier.padding(horizontal = 28.dp, vertical = 8.dp), // Increased horizontal padding to force peeking
+                            fontSize = 14.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            color = BrandDarkGray
+                        )
                     }
                 }
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Property Grid
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Column(
+                modifier = Modifier.padding(horizontal = 24.dp)
             ) {
-                items(properties) { property ->
-                    PropertyCard(property = property, onClick = { onPropertyClick(property.id) })
+                // Duplicate properties to ensure scrollability
+                val filteredProperties = if (selectedCategory == "Semua") {
+                    properties
+                } else {
+                    properties.filter { it.type == selectedCategory }
                 }
+                val chunkedProperties = filteredProperties.chunked(2)
+                chunkedProperties.forEach { rowItems ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        rowItems.forEach { property ->
+                            Box(modifier = Modifier.weight(1f)) {
+                                PropertyCard(property = property, onClick = { onPropertyClick(property.id) })
+                            }
+                        }
+                        if (rowItems.size == 1) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(120.dp)) // Extra space for floating bottom nav
+        }
+
+        // Floating Bottom Navigation (STAYS FIXED)
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 32.dp, start = 24.dp, end = 24.dp)
+                .shadow(12.dp, RoundedCornerShape(32.dp))
+                .clip(RoundedCornerShape(32.dp))
+                .background(Color.White)
+                .height(72.dp)
+                .fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BottomNavItem(iconRes = R.drawable.ic_home, label = "Beranda", isSelected = true)
+                BottomNavItem(iconRes = R.drawable.ic_history, label = "Riwayat", isSelected = false)
+                BottomNavItem(iconRes = R.drawable.ic_profile, label = "Profil", isSelected = false)
             }
         }
     }
@@ -126,85 +263,142 @@ fun PropertyCard(property: Property, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .shadow(4.dp, RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column {
-            AsyncImage(
-                model = property.imageUrl,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-                contentScale = ContentScale.Crop
-            )
-            Column(modifier = Modifier.padding(12.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+            Box(modifier = Modifier.fillMaxWidth().height(140.dp)) {
+                Image(
+                    painter = painterResource(id = property.thumbnailRes),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                
+                // Favorite Icon (Single icon, no double elements)
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp)
+                        .size(32.dp),
+                    shape = CircleShape,
+                    color = Color.White
                 ) {
-                    Text(text = property.type, fontSize = 12.sp, color = Color.Gray)
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_like),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = Color.Gray
+                        )
+                    }
+                }
+
+                // Property Type Tag
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(12.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    color = BrandDarkBlue.copy(alpha = 0.8f)
+                ) {
                     Text(
-                        text = "IDR ${formatPrice(property.price)}",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        text = property.type,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        fontSize = 10.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
                     )
                 }
-                Text(text = "Untuk 7 Hari", fontSize = 10.sp, color = Color.Gray, modifier = Modifier.align(Alignment.End))
+            }
+
+            Column(modifier = Modifier.padding(12.dp).fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "IDR ${formatPrice(property.price)}",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = BrandDarkGray,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(start = 4.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_star),
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = BrandYellow
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = property.rating.toString(),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = BrandDarkGray
+                        )
+                    }
+                }
                 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Default.Home, // Placeholder for location pin
+                        painter = painterResource(id = R.drawable.ic_location),
                         contentDescription = null,
-                        modifier = Modifier.size(14.dp),
+                        modifier = Modifier.size(12.dp),
                         tint = Color.Red
                     )
-                    Text(text = property.location, fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(start = 4.dp))
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = null,
-                        modifier = Modifier.size(14.dp),
-                        tint = Color(0xFFF0D050)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = property.location,
+                        fontSize = 11.sp,
+                        color = Color.Gray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                    Text(text = "${property.rating} (${property.reviews})", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
                 
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = property.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(6.dp))
+                
+                Text(
+                    text = property.name,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = BrandDarkGray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }
 }
 
 @Composable
-fun BottomNavigationBar() {
-    NavigationBar(
-        containerColor = Color.White,
-        tonalElevation = 8.dp
+fun BottomNavItem(iconRes: Int, label: String, isSelected: Boolean) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable { }
     ) {
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Home, contentDescription = null) },
-            label = { Text("Beranda") },
-            selected = true,
-            onClick = {}
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = null,
+            modifier = Modifier.size(24.dp),
+            tint = if (isSelected) BrandDarkGray else Color.LightGray
         )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.History, contentDescription = null) },
-            label = { Text("Riwayat") },
-            selected = false,
-            onClick = {}
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Person, contentDescription = null) },
-            label = { Text("Profil") },
-            selected = false,
-            onClick = {}
+        Text(
+            text = label,
+            fontSize = 10.sp,
+            color = if (isSelected) BrandDarkGray else Color.LightGray,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         )
     }
 }
@@ -212,4 +406,12 @@ fun BottomNavigationBar() {
 fun formatPrice(price: Long): String {
     val formatter = NumberFormat.getInstance(Locale("id", "ID"))
     return formatter.format(price)
+}
+
+@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_7)
+@Composable
+fun HomeScreenPreview() {
+    SpotRentTheme {
+        HomeScreen(onPropertyClick = {}, onLoginClick = {})
+    }
 }

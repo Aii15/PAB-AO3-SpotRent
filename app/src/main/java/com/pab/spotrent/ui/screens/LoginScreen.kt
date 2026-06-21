@@ -2,8 +2,12 @@ package com.pab.spotrent.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,146 +20,168 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.pab.spotrent.R
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
+import com.pab.spotrent.ui.theme.BrandDarkBlue
+import com.pab.spotrent.ui.theme.BrandDarkGray
+import com.pab.spotrent.ui.theme.BrandLightGray
+import com.pab.spotrent.ui.theme.BrandLinkBlue
+import com.pab.spotrent.ui.theme.BrandYellow
+import com.pab.spotrent.ui.theme.SpotRentTheme
 
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    onRegisterClick: () -> Unit
+) {
     var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var isLoginMode by remember { mutableStateOf(true) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Background Grid of Images (Simplified with few images for now)
-        Column(modifier = Modifier.fillMaxSize()) {
-            Row(modifier = Modifier.weight(1f)) {
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(4.dp).clip(RoundedCornerShape(8.dp)).background(Color.Gray))
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(4.dp).clip(RoundedCornerShape(8.dp)).background(Color.Gray))
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(4.dp).clip(RoundedCornerShape(8.dp)).background(Color.Gray))
-            }
-            Row(modifier = Modifier.weight(1f)) {
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(4.dp).clip(RoundedCornerShape(8.dp)).background(Color.Gray))
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(4.dp).clip(RoundedCornerShape(8.dp)).background(Color.Gray))
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(4.dp).clip(RoundedCornerShape(8.dp)).background(Color.Gray))
-            }
-            Row(modifier = Modifier.weight(1f)) {
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(4.dp).clip(RoundedCornerShape(8.dp)).background(Color.Gray))
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(4.dp).clip(RoundedCornerShape(8.dp)).background(Color.Gray))
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(4.dp).clip(RoundedCornerShape(8.dp)).background(Color.Gray))
-            }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BrandDarkBlue)
+    ) {
+        // Background Pattern
+        Image(
+            painter = painterResource(id = R.drawable.bg_login),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.45f),
+            contentScale = ContentScale.FillBounds
+        )
+
+        // Top section with Logo and Text
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.4f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Logo from drawable
+            Image(
+                painter = painterResource(id = R.drawable.logo_spotrent),
+                contentDescription = "Logo SpotRent",
+                modifier = Modifier.size(120.dp)
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "SpotRent",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         }
 
-        // Semi-transparent overlay
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.4f)))
-
-        // Login Card
-        Card(
+        // Bottom section with Login Card
+        Surface(
             modifier = Modifier
-                .align(Alignment.Center)
-                .padding(32.dp)
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+                .fillMaxWidth()
+                .fillMaxHeight(0.65f)
+                .align(Alignment.BottomCenter),
+            shape = RoundedCornerShape(topStart = 48.dp, topEnd = 48.dp),
+            color = Color.White
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp, vertical = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Logo and Name
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Placeholder for Logo
-                    Surface(
-                        modifier = Modifier.size(32.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFFE0E0E0)
-                    ) {}
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "SpotRent",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.DarkGray
-                    )
-                }
+                Text(
+                    text = "Login",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = BrandDarkGray
+                )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-                // Tab Switcher (Masuk / Daftar)
-                Surface(
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    shape = RoundedCornerShape(24.dp),
-                    color = Color(0xFFF5F5F5)
-                ) {
-                    Row {
-                        Button(
-                            onClick = { isLoginMode = true },
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
-                            shape = RoundedCornerShape(24.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isLoginMode) Color.White else Color.Transparent,
-                                contentColor = if (isLoginMode) Color.Black else Color.Gray
-                            ),
-                            elevation = if (isLoginMode) ButtonDefaults.buttonElevation(defaultElevation = 2.dp) else null
-                        ) {
-                            Text("Masuk")
-                        }
-                        Button(
-                            onClick = { isLoginMode = false },
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
-                            shape = RoundedCornerShape(24.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (!isLoginMode) Color.White else Color.Transparent,
-                                contentColor = if (!isLoginMode) Color.Black else Color.Gray
-                            ),
-                            elevation = if (!isLoginMode) ButtonDefaults.buttonElevation(defaultElevation = 2.dp) else null
-                        ) {
-                            Text("Daftar")
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Input Fields
+                // Username/Email field
                 OutlinedTextField(
                     value = identifier,
                     onValueChange = { identifier = it },
-                    label = { Text("E-mail atau username", color = Color.Gray) },
+                    placeholder = { Text("Username Or Email", color = Color.Gray) },
+                    leadingIcon = {
+                        Icon(Icons.Default.Person, contentDescription = null, tint = BrandDarkGray)
+                    },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.LightGray,
-                        unfocusedBorderColor = Color.LightGray
-                    )
+                        focusedContainerColor = BrandLightGray,
+                        unfocusedContainerColor = BrandLightGray,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent
+                    ),
+                    singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
+                // Password field
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password", color = Color.Gray) },
+                    placeholder = { Text("Password", color = Color.Gray) },
+                    leadingIcon = {
+                        Icon(Icons.Default.Lock, contentDescription = null, tint = BrandDarkGray)
+                    },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.LightGray,
-                        unfocusedBorderColor = Color.LightGray
-                    )
+                        focusedContainerColor = BrandLightGray,
+                        unfocusedContainerColor = BrandLightGray,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent
+                    ),
+                    singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(48.dp))
 
                 // Login Button
                 Button(
                     onClick = onLoginSuccess,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF0D050))
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
                 ) {
-                    Text("Masuk", color = Color.Black, fontWeight = FontWeight.Bold)
+                    Text("Masuk", color = BrandDarkGray, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(text = "Or", color = BrandDarkGray)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Register Link
+                Row {
+                    Text(text = "Belum Punya Akun? ", color = BrandDarkGray)
+                    Text(
+                        text = "Daftar",
+                        color = BrandLinkBlue,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable { onRegisterClick() }
+                    )
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_7)
+@Composable
+fun LoginScreenPreview() {
+    SpotRentTheme {
+        LoginScreen(onLoginSuccess = {}, onRegisterClick = {})
     }
 }

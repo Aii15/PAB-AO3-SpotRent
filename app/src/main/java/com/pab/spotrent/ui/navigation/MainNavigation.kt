@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.pab.spotrent.ui.screens.HomeScreen
 import com.pab.spotrent.ui.screens.LoginScreen
+import com.pab.spotrent.ui.screens.RegisterScreen
 import com.pab.spotrent.ui.screens.PropertyDetailScreen
 
 @Composable
@@ -16,16 +17,38 @@ fun MainNavigation() {
 
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(Screen.Login.route) {
-            LoginScreen(onLoginSuccess = {
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                },
+                onRegisterClick = {
+                    navController.navigate(Screen.Register.route)
                 }
-            })
+            )
+        }
+        composable(Screen.Register.route) {
+            RegisterScreen(
+                onRegisterSuccess = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Register.route) { inclusive = true }
+                    }
+                },
+                onLoginClick = {
+                    navController.navigate(Screen.Login.route)
+                }
+            )
         }
         composable(Screen.Home.route) {
-            HomeScreen(onPropertyClick = { propertyId ->
-                navController.navigate(Screen.Detail.createRoute(propertyId))
-            })
+            HomeScreen(
+                onPropertyClick = { propertyId ->
+                    navController.navigate(Screen.Detail.createRoute(propertyId))
+                },
+                onLoginClick = {
+                    navController.navigate(Screen.Login.route)
+                }
+            )
         }
         composable(
             route = Screen.Detail.route,
