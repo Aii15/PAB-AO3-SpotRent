@@ -20,10 +20,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pab.spotrent.R
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import com.pab.spotrent.data.repository.PropertyRepository
 import com.pab.spotrent.ui.theme.BrandDarkBlue
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandYellow
+import com.pab.spotrent.ui.theme.SpotRentTheme
 import java.text.NumberFormat
 import java.util.*
 
@@ -205,7 +208,9 @@ fun PropertyDetailScreen(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFFEEEEEE))
+                        border = BorderStroke(1.dp, Color(0xFFEEEEEE)),
+                        color = Color.White,
+                        contentColor = BrandDarkGray
                     ) {
                         Row(
                             modifier = Modifier.padding(16.dp),
@@ -234,7 +239,9 @@ fun PropertyDetailScreen(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFFEEEEEE))
+                        border = BorderStroke(1.dp, Color(0xFFEEEEEE)),
+                        color = Color.White,
+                        contentColor = BrandDarkGray
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(text = "Spesifikasi Properti", fontWeight = FontWeight.Bold, fontSize = 14.sp)
@@ -358,7 +365,9 @@ fun ReviewCard() {
     Surface(
         modifier = Modifier.width(280.dp),
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, Color(0xFFEEEEEE))
+        border = BorderStroke(1.dp, Color(0xFFEEEEEE)),
+        color = Color.White,
+        contentColor = BrandDarkGray
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -396,5 +405,13 @@ fun ReviewCard() {
                 maxLines = 3
             )
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_7)
+@Composable
+fun PropertyDetailScreenPreview() {
+    SpotRentTheme {
+        PropertyDetailScreen(propertyId = 1, onBackClick = {})
     }
 }

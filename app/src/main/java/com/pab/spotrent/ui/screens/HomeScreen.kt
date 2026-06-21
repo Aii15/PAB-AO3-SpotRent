@@ -18,6 +18,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pab.spotrent.R
@@ -27,6 +28,9 @@ import com.pab.spotrent.ui.theme.BrandDarkBlue
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandYellow
 import com.pab.spotrent.ui.theme.Poppins
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
+import com.pab.spotrent.ui.theme.SpotRentTheme
 import java.text.NumberFormat
 import java.util.*
 
@@ -310,23 +314,28 @@ fun PropertyCard(property: Property, onClick: () -> Unit) {
                 }
             }
 
-            Column(modifier = Modifier.padding(12.dp).fillMaxWidth().height(100.dp)) {
+            Column(modifier = Modifier.padding(12.dp).fillMaxWidth()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = "IDR ${formatPrice(property.price)}",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = BrandDarkGray
+                        color = BrandDarkGray,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(start = 4.dp)
+                    ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_star),
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(14.dp),
                             tint = BrandYellow
                         )
                         Spacer(modifier = Modifier.width(2.dp))
@@ -339,31 +348,34 @@ fun PropertyCard(property: Property, onClick: () -> Unit) {
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_location),
                         contentDescription = null,
-                        modifier = Modifier.size(14.dp),
+                        modifier = Modifier.size(12.dp),
                         tint = Color.Red
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = property.location,
                         fontSize = 11.sp,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 
                 Text(
                     text = property.name,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = BrandDarkGray,
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -394,4 +406,12 @@ fun BottomNavItem(iconRes: Int, label: String, isSelected: Boolean) {
 fun formatPrice(price: Long): String {
     val formatter = NumberFormat.getInstance(Locale("id", "ID"))
     return formatter.format(price)
+}
+
+@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_7)
+@Composable
+fun HomeScreenPreview() {
+    SpotRentTheme {
+        HomeScreen(onPropertyClick = {}, onLoginClick = {})
+    }
 }

@@ -19,11 +19,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import com.pab.spotrent.ui.theme.BrandDarkBlue
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandLightGray
 import com.pab.spotrent.ui.theme.BrandLinkBlue
 import com.pab.spotrent.ui.theme.BrandYellow
+import com.pab.spotrent.ui.theme.SpotRentTheme
 
 @Composable
 fun RegisterScreen(
@@ -193,5 +196,13 @@ fun RegisterScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_7)
+@Composable
+fun RegisterScreenPreview() {
+    SpotRentTheme {
+        RegisterScreen(onRegisterSuccess = {}, onLoginClick = {})
     }
 }
