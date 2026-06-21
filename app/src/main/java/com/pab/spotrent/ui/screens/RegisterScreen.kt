@@ -59,7 +59,7 @@ fun RegisterScreen(
         ) {
             // Logo from drawable
             Image(
-                painter = painterResource(id = com.pab.spotrent.R.drawable.logo_sptrent),
+                painter = painterResource(id = com.pab.spotrent.R.drawable.logo_spotrent),
                 contentDescription = "Logo SpotRent",
                 modifier = Modifier.size(120.dp)
             )

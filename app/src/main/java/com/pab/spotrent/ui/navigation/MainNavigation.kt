@@ -41,9 +41,14 @@ fun MainNavigation() {
             )
         }
         composable(Screen.Home.route) {
-            HomeScreen(onPropertyClick = { propertyId ->
-                navController.navigate(Screen.Detail.createRoute(propertyId))
-            })
+            HomeScreen(
+                onPropertyClick = { propertyId ->
+                    navController.navigate(Screen.Detail.createRoute(propertyId))
+                },
+                onLoginClick = {
+                    navController.navigate(Screen.Login.route)
+                }
+            )
         }
         composable(
             route = Screen.Detail.route,
