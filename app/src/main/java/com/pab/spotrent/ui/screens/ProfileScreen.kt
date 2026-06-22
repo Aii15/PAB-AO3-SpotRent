@@ -33,11 +33,11 @@ import com.pab.spotrent.ui.theme.BrandYellow
 fun ProfileScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToHistory: () -> Unit,
+    onNavigateToAccountDetail: () -> Unit,
     onLogoutSuccess: () -> Unit
 ) {
     val currentUser by AuthRepository.currentUser.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
-    var showEmailDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
 
     Box(
@@ -152,9 +152,9 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Ubah Email Button
+                // Lihat Profil Button
                 Button(
-                    onClick = { showEmailDialog = true },
+                    onClick = onNavigateToAccountDetail,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -162,7 +162,7 @@ fun ProfileScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
                 ) {
                     Text(
-                        text = "Ubah Email",
+                        text = "Lihat Profil",
                         color = BrandDarkGray,
                         fontWeight = FontWeight.Bold
                     )
@@ -229,73 +229,6 @@ fun ProfileScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showLogoutDialog = false }) {
-                    Text("Batal", color = BrandDarkGray)
-                }
-            },
-            shape = RoundedCornerShape(24.dp),
-            containerColor = Color.White
-        )
-    }
-
-    // Dialog Ubah Email
-    if (showEmailDialog) {
-        var newEmail by remember { mutableStateOf(currentUser?.email ?: "") }
-        var emailError by remember { mutableStateOf("") }
-
-        AlertDialog(
-            onDismissRequest = { showEmailDialog = false },
-            title = { Text(text = "Ubah Email", fontWeight = FontWeight.Bold, color = BrandDarkGray) },
-            text = {
-                Column {
-                    Text(text = "Masukkan alamat email baru Anda.", color = BrandDarkGray, modifier = Modifier.padding(bottom = 8.dp))
-                    OutlinedTextField(
-                        value = newEmail,
-                        onValueChange = { 
-                            newEmail = it
-                            emailError = ""
-                        },
-                        placeholder = { Text("Email Baru", color = Color.Gray) },
-                        isError = emailError.isNotEmpty(),
-                        supportingText = {
-                            if (emailError.isNotEmpty()) {
-                                Text(text = emailError, color = Color.Red)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = BrandDarkGray,
-                            unfocusedTextColor = BrandDarkGray,
-                            focusedBorderColor = if (emailError.isNotEmpty()) Color.Red else BrandDarkBlue,
-                            unfocusedBorderColor = if (emailError.isNotEmpty()) Color.Red else Color.LightGray
-                        ),
-                        singleLine = true
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        if (newEmail.isBlank()) {
-                            emailError = "Email tidak boleh kosong"
-                        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
-                            emailError = "Format email tidak valid"
-                        } else {
-                            val success = AuthRepository.updateEmail(newEmail)
-                            if (success) {
-                                showEmailDialog = false
-                            } else {
-                                emailError = "Gagal memperbarui email"
-                            }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
-                ) {
-                    Text("Simpan", color = BrandDarkGray, fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEmailDialog = false }) {
                     Text("Batal", color = BrandDarkGray)
                 }
             },

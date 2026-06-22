@@ -42,6 +42,24 @@ object AuthRepository {
         return success
     }
 
+    fun updateProfile(fullName: String, phone: String, email: String): Boolean {
+        val user = _currentUser.value ?: return false
+        val helper = dbHelper ?: return false
+        val success = helper.updateProfile(user.id, fullName, phone, email)
+        if (success) {
+            _currentUser.value = user.copy(fullName = fullName, phone = phone, email = email)
+        }
+        return success
+    }
+
+    fun getCurrentUserPassword(): String {
+        val user = _currentUser.value ?: return ""
+        val helper = dbHelper ?: return ""
+        // Look up by username or email
+        val credentials = helper.getUserCredentials(user.username) ?: helper.getUserCredentials(user.email)
+        return credentials?.second ?: ""
+    }
+
     fun updatePassword(newPassword: String): Boolean {
         val user = _currentUser.value ?: return false
         val helper = dbHelper ?: return false

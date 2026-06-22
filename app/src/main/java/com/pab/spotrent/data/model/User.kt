@@ -5,5 +5,6 @@ data class User(
     val username: String,
     val email: String,
     val fullName: String,
-    val profilePicture: Int? = null // Using local resource for dummy
+    val profilePicture: Int? = null, // Using local resource for dummy
+    val phone: String = ""
 )

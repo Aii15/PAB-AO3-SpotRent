@@ -11,7 +11,7 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
 
     companion object {
         private const val DATABASE_NAME = "spotrent.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2 // Incremented for schema change
 
         const val TABLE_USERS = "users"
         const val COLUMN_ID = "id"
@@ -19,6 +19,7 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         const val COLUMN_EMAIL = "email"
         const val COLUMN_FULL_NAME = "fullName"
         const val COLUMN_PASSWORD = "password"
+        const val COLUMN_PHONE = "phone"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -28,23 +29,25 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
                 $COLUMN_USERNAME TEXT UNIQUE,
                 $COLUMN_EMAIL TEXT UNIQUE,
                 $COLUMN_FULL_NAME TEXT,
-                $COLUMN_PASSWORD TEXT
+                $COLUMN_PASSWORD TEXT,
+                $COLUMN_PHONE TEXT
             )
         """.trimIndent()
         db.execSQL(createTableQuery)
 
         // Insert default dummy users
-        insertDummyUser(db, 1, "admin", "admin@spotrent.com", "Admin SpotRent", "password123")
-        insertDummyUser(db, 2, "user", "user@gmail.com", "John Doe", "password123")
+        insertDummyUser(db, 1, "admin", "admin@spotrent.com", "Admin SpotRent", "password123", "081234567890")
+        insertDummyUser(db, 2, "user", "user@gmail.com", "John Doe", "password123", "08137465830")
     }
 
-    private fun insertDummyUser(db: SQLiteDatabase, id: Int, username: String, email: String, fullName: String, password: String) {
+    private fun insertDummyUser(db: SQLiteDatabase, id: Int, username: String, email: String, fullName: String, password: String, phone: String) {
         val values = ContentValues().apply {
             put(COLUMN_ID, id)
             put(COLUMN_USERNAME, username)
             put(COLUMN_EMAIL, email)
             put(COLUMN_FULL_NAME, fullName)
             put(COLUMN_PASSWORD, password)
+            put(COLUMN_PHONE, phone)
         }
         db.insert(TABLE_USERS, null, values)
     }
@@ -62,6 +65,7 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             put(COLUMN_EMAIL, email)
             put(COLUMN_FULL_NAME, fullName)
             put(COLUMN_PASSWORD, password)
+            put(COLUMN_PHONE, "")
         }
         val result = db.insert(TABLE_USERS, null, values)
         return result != -1L
@@ -84,13 +88,15 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             val email = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_EMAIL))
             val fullName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FULL_NAME))
             val password = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PASSWORD))
+            val phone = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PHONE)) ?: ""
             
             val user = User(
                 id = id,
                 username = username,
                 email = email,
                 fullName = fullName,
-                profilePicture = R.drawable.ic_profile
+                profilePicture = R.drawable.ic_profile,
+                phone = phone
             )
             result = Pair(user, password)
         }
@@ -103,6 +109,18 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         val db = writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_EMAIL, newEmail)
+        }
+        val rows = db.update(TABLE_USERS, values, "$COLUMN_ID = ?", arrayOf(userId.toString()))
+        return rows > 0
+    }
+
+    // Update profile
+    fun updateProfile(userId: Int, fullName: String, phone: String, email: String): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_FULL_NAME, fullName)
+            put(COLUMN_PHONE, phone)
+            put(COLUMN_EMAIL, email)
         }
         val rows = db.update(TABLE_USERS, values, "$COLUMN_ID = ?", arrayOf(userId.toString()))
         return rows > 0

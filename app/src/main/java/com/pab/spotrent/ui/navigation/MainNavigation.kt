@@ -16,6 +16,7 @@ import com.pab.spotrent.ui.screens.PaymentConfirmationScreen
 import com.pab.spotrent.ui.screens.ProfileScreen
 import com.pab.spotrent.ui.screens.HistoryScreen
 import com.pab.spotrent.ui.screens.BookingDetailScreen
+import com.pab.spotrent.ui.screens.AccountDetailScreen
 import com.pab.spotrent.data.repository.AuthRepository
 
 @Composable
@@ -183,10 +184,21 @@ fun MainNavigation() {
                 onNavigateToHistory = {
                     navController.navigate(Screen.History.route)
                 },
+                onNavigateToAccountDetail = {
+                    navController.navigate(Screen.AccountDetail.route)
+                },
                 onLogoutSuccess = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }
                     }
+                }
+            )
+        }
+        composable(Screen.AccountDetail.route) {
+            AccountDetailScreen(
+                onBackClick = { navController.popBackStack() },
+                onSaveSuccess = {
+                    navController.popBackStack()
                 }
             )
         }
