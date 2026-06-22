@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandYellow
+import com.pab.spotrent.data.repository.BookingRepository
+import com.pab.spotrent.data.model.Booking
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,6 +38,14 @@ fun BookingCalendarScreen(
     var calendar by remember { mutableStateOf(Calendar.getInstance().apply { set(Calendar.DAY_OF_MONTH, 1) }) }
     var startDate by remember { mutableStateOf<Long?>(null) }
     var endDate by remember { mutableStateOf<Long?>(null) }
+
+    val allBookings by BookingRepository.bookings.collectAsState()
+    val propertyBookings = remember(allBookings, propertyId) {
+        allBookings.filter { it.propertyId == propertyId && it.status == "Berhasil" }
+    }
+
+    var showWarningDialog by remember { mutableStateOf(false) }
+    var warningMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -137,6 +147,14 @@ fun BookingCalendarScreen(
         }
 
         // Calendar Grid
+        val todayMillis = remember {
+            Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+        }
         val days = getDaysInMonth(calendar)
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
@@ -148,10 +166,13 @@ fun BookingCalendarScreen(
                 if (day == null) {
                     Spacer(modifier = Modifier.aspectRatio(1f))
                 } else {
+                    val isPastDate = day.timeInMillis < todayMillis
+                    val isBooked = isDateBooked(day.timeInMillis, propertyBookings)
+                    
                     val isSelectedStart = startDate == day.timeInMillis
                     val isSelectedEnd = endDate == day.timeInMillis
                     val isInRange = startDate != null && endDate != null && 
-                                    day.timeInMillis > startDate!! && day.timeInMillis < endDate!!
+                                     day.timeInMillis > startDate!! && day.timeInMillis < endDate!!
                     
                     Box(
                         modifier = Modifier
@@ -162,17 +183,41 @@ fun BookingCalendarScreen(
                                 when {
                                     isSelectedStart || isSelectedEnd -> BrandYellow
                                     isInRange -> BrandYellow.copy(alpha = 0.3f)
+                                    isBooked -> Color(0xFFEF9A9A) // Soft Red background
                                     else -> Color.Transparent
                                 }
                             )
-                            .clickable {
-                                if (startDate == null || (startDate != null && endDate != null)) {
-                                    startDate = day.timeInMillis
-                                    endDate = null
-                                } else if (day.timeInMillis < startDate!!) {
-                                    startDate = day.timeInMillis
+                            .clickable(enabled = !isPastDate) {
+                                if (isBooked) {
+                                    warningMessage = "Tanggal ini sudah dibooking. Silakan pilih tanggal lain."
+                                    showWarningDialog = true
                                 } else {
-                                    endDate = day.timeInMillis
+                                    if (startDate == null || (startDate != null && endDate != null)) {
+                                        startDate = day.timeInMillis
+                                        endDate = null
+                                    } else if (day.timeInMillis < startDate!!) {
+                                        startDate = day.timeInMillis
+                                    } else {
+                                        // Check if there is any booked date in between
+                                        var hasBookedDateInRange = false
+                                        val start = minOf(startDate!!, day.timeInMillis)
+                                        val end = maxOf(startDate!!, day.timeInMillis)
+                                        val checkCal = Calendar.getInstance().apply { timeInMillis = start }
+                                        while (checkCal.timeInMillis <= end) {
+                                            if (isDateBooked(checkCal.timeInMillis, propertyBookings)) {
+                                                hasBookedDateInRange = true
+                                                break
+                                            }
+                                            checkCal.add(Calendar.DAY_OF_MONTH, 1)
+                                        }
+
+                                        if (hasBookedDateInRange) {
+                                            warningMessage = "Rentang tanggal pilihan Anda melewati tanggal yang sudah dibooking. Silakan pilih rentang tanggal lain."
+                                            showWarningDialog = true
+                                        } else {
+                                            endDate = day.timeInMillis
+                                        }
+                                    }
                                 }
                             },
                         contentAlignment = Alignment.Center
@@ -180,8 +225,13 @@ fun BookingCalendarScreen(
                         Text(
                             text = day.get(Calendar.DAY_OF_MONTH).toString(),
                             fontSize = 14.sp,
-                            color = if (isSelectedStart || isSelectedEnd || isInRange) Color.Black else Color.Black,
-                            fontWeight = if (isSelectedStart || isSelectedEnd) FontWeight.Bold else FontWeight.Normal
+                            color = when {
+                                isPastDate -> Color.LightGray
+                                isBooked -> Color(0xFFB71C1C) // Dark Red text
+                                isSelectedStart || isSelectedEnd || isInRange -> Color.Black
+                                else -> Color.Black
+                            },
+                            fontWeight = if (isSelectedStart || isSelectedEnd || isBooked) FontWeight.Bold else FontWeight.Normal
                         )
                     }
                 }
@@ -222,6 +272,59 @@ fun BookingCalendarScreen(
             }
         }
     }
+
+    if (showWarningDialog) {
+        AlertDialog(
+            onDismissRequest = { showWarningDialog = false },
+            title = { Text(text = "Peringatan", fontWeight = FontWeight.Bold, color = BrandDarkGray) },
+            text = { Text(text = warningMessage, color = BrandDarkGray) },
+            confirmButton = {
+                Button(
+                    onClick = { showWarningDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
+                ) {
+                    Text("OK", color = BrandDarkGray, fontWeight = FontWeight.Bold)
+                }
+            },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = Color.White
+        )
+    }
+}
+
+private fun isDateBooked(timeInMillis: Long, bookings: List<Booking>): Boolean {
+    val cal = Calendar.getInstance().apply {
+        this.timeInMillis = timeInMillis
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+    val targetTime = cal.timeInMillis
+
+    for (booking in bookings) {
+        val startCal = Calendar.getInstance().apply {
+            this.timeInMillis = booking.startDate
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val endCal = Calendar.getInstance().apply {
+            this.timeInMillis = booking.endDate
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val start = startCal.timeInMillis
+        val end = endCal.timeInMillis
+
+        if (targetTime in start..end) {
+            return true
+        }
+    }
+    return false
 }
 
 private fun getDaysInMonth(calendar: Calendar): List<Calendar?> {

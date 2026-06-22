@@ -23,6 +23,8 @@ import com.pab.spotrent.R
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import com.pab.spotrent.data.repository.PropertyRepository
+import com.pab.spotrent.data.repository.WishlistRepository
+import com.pab.spotrent.data.repository.AuthRepository
 import com.pab.spotrent.ui.theme.BrandDarkBlue
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandYellow
@@ -34,10 +36,14 @@ import java.util.*
 fun PropertyDetailScreen(
     propertyId: Int,
     onBackClick: () -> Unit,
-    onBookingClick: () -> Unit
+    onBookingClick: () -> Unit,
+    onLoginRequired: () -> Unit
 ) {
     val property = PropertyRepository.getPropertyById(propertyId) ?: return
     val scrollState = rememberScrollState()
+    
+    val wishlistedIds by WishlistRepository.wishlistedIds.collectAsState()
+    val isWishlisted = wishlistedIds.contains(propertyId)
     
     // Images for pager from property model
     val propertyImages = property.detailImages
@@ -115,27 +121,6 @@ fun PropertyDetailScreen(
                         )
                     }
                 }
-
-                // Favorite Button
-                Surface(
-                    onClick = { /* Handle favorite */ },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .statusBarsPadding()
-                        .padding(24.dp)
-                        .size(40.dp),
-                    shape = CircleShape,
-                    color = Color.White
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_like),
-                            contentDescription = "Favorite",
-                            modifier = Modifier.size(20.dp),
-                            tint = Color.Gray
-                        )
-                    }
-                }
             }
 
             // Property Info Card
@@ -160,12 +145,36 @@ fun PropertyDetailScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    Text(
-                        text = property.name,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = BrandDarkGray
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = property.name,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = BrandDarkGray,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(
+                            onClick = {
+                                if (AuthRepository.isLoggedIn()) {
+                                    WishlistRepository.toggleWishlist(propertyId)
+                                } else {
+                                    onLoginRequired()
+                                }
+                            },
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_like),
+                                contentDescription = "Wishlist",
+                                tint = if (isWishlisted) Color.Red else Color.Gray,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -229,12 +238,12 @@ fun PropertyDetailScreen(
                                 color = Color(0xFF2E7D32)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text("KAI", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text(property.partnerLogoText, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
-                                Text(text = "PT. Kereta Api Wisata", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(text = property.partnerName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                 Text(text = "Pengelola Operasional", fontSize = 12.sp, color = Color.Gray)
                             }
                         }
@@ -254,7 +263,7 @@ fun PropertyDetailScreen(
                             Text(text = "Spesifikasi Properti", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                             Spacer(modifier = Modifier.height(16.dp))
                             
-                            val specs = listOf(
+                            val specIconMap = mapOf(
                                 "Sanitasi" to R.drawable.ic_sanitasi,
                                 "Listrik dan Penerangan" to R.drawable.ic_listrik,
                                 "CCTV" to R.drawable.ic_cctv,
@@ -264,6 +273,9 @@ fun PropertyDetailScreen(
                                 "APAR" to R.drawable.ic_apar,
                                 "Outdoor" to R.drawable.ic_outdoor
                             )
+                            val specs = property.specifications.mapNotNull { name ->
+                                specIconMap[name]?.let { iconRes -> name to iconRes }
+                            }
 
                             Column {
                                 specs.chunked(2).forEach { rowSpecs ->
@@ -423,6 +435,6 @@ fun ReviewCard() {
 @Composable
 fun PropertyDetailScreenPreview() {
     SpotRentTheme {
-        PropertyDetailScreen(propertyId = 1, onBackClick = {}, onBookingClick = {})
+        PropertyDetailScreen(propertyId = 1, onBackClick = {}, onBookingClick = {}, onLoginRequired = {})
     }
 }

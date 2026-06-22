@@ -11,5 +11,7 @@ data class Property(
     val thumbnailRes: Int, // Resource ID for Home Screen card
     val detailImages: List<Int>, // List of resource IDs for Detail Screen pager
     val type: String,
-    val specifications: List<String> = emptyList()
+    val specifications: List<String> = emptyList(),
+    val partnerName: String,
+    val partnerLogoText: String
 )

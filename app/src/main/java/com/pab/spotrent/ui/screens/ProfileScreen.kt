@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pab.spotrent.R
@@ -32,6 +33,10 @@ import com.pab.spotrent.ui.theme.BrandYellow
 fun ProfileScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToHistory: () -> Unit,
+    onNavigateToAccountDetail: () -> Unit,
+    onNavigateToChangePassword: () -> Unit,
+    onNavigateToAbout: () -> Unit,
+    onNavigateToWishlist: () -> Unit,
     onLogoutSuccess: () -> Unit
 ) {
     val currentUser by AuthRepository.currentUser.collectAsState()
@@ -68,7 +73,7 @@ fun ProfileScreen(
                 ProfileMenuItem(
                     iconRes = R.drawable.ic_key,
                     label = "Ganti Kata Sandi",
-                    onClick = { /* Not implemented */ }
+                    onClick = onNavigateToChangePassword
                 )
                 ProfileMenuItem(
                     iconRes = R.drawable.ic_history,
@@ -78,12 +83,12 @@ fun ProfileScreen(
                 ProfileMenuItem(
                     iconRes = R.drawable.ic_info,
                     label = "Tentang SpotRent",
-                    onClick = { /* Not implemented */ }
+                    onClick = onNavigateToAbout
                 )
                 ProfileMenuItem(
                     iconRes = R.drawable.ic_heart,
                     label = "Lihat Wishlist",
-                    onClick = { /* Not implemented */ }
+                    onClick = onNavigateToWishlist
                 )
                 ProfileMenuItem(
                     iconRes = R.drawable.ic_logout,
@@ -151,7 +156,7 @@ fun ProfileScreen(
 
                 // Lihat Profil Button
                 Button(
-                    onClick = { /* Not implemented */ },
+                    onClick = onNavigateToAccountDetail,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),

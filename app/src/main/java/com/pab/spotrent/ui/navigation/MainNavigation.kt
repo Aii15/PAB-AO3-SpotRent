@@ -16,13 +16,17 @@ import com.pab.spotrent.ui.screens.PaymentConfirmationScreen
 import com.pab.spotrent.ui.screens.ProfileScreen
 import com.pab.spotrent.ui.screens.HistoryScreen
 import com.pab.spotrent.ui.screens.BookingDetailScreen
+import com.pab.spotrent.ui.screens.AccountDetailScreen
+import com.pab.spotrent.ui.screens.ChangePasswordScreen
+import com.pab.spotrent.ui.screens.AboutScreen
+import com.pab.spotrent.ui.screens.WishlistScreen
 import com.pab.spotrent.data.repository.AuthRepository
 
 @Composable
 fun MainNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Screen.Login.route) {
+    NavHost(navController = navController, startDestination = Screen.Home.route) {
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = {
@@ -32,6 +36,9 @@ fun MainNavigation() {
                 },
                 onRegisterClick = {
                     navController.navigate(Screen.Register.route)
+                },
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -44,6 +51,9 @@ fun MainNavigation() {
                 },
                 onLoginClick = {
                     navController.navigate(Screen.Login.route)
+                },
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -56,10 +66,18 @@ fun MainNavigation() {
                     navController.navigate(Screen.Login.route)
                 },
                 onProfileClick = {
-                    navController.navigate(Screen.Profile.route)
+                    if (AuthRepository.isLoggedIn()) {
+                        navController.navigate(Screen.Profile.route)
+                    } else {
+                        navController.navigate(Screen.Login.route)
+                    }
                 },
                 onHistoryClick = {
-                    navController.navigate(Screen.History.route)
+                    if (AuthRepository.isLoggedIn()) {
+                        navController.navigate(Screen.History.route)
+                    } else {
+                        navController.navigate(Screen.Login.route)
+                    }
                 }
             )
         }
@@ -77,6 +95,9 @@ fun MainNavigation() {
                     } else {
                         navController.navigate(Screen.Login.route)
                     }
+                },
+                onLoginRequired = {
+                    navController.navigate(Screen.Login.route)
                 }
             )
         }
@@ -183,10 +204,51 @@ fun MainNavigation() {
                 onNavigateToHistory = {
                     navController.navigate(Screen.History.route)
                 },
+                onNavigateToAccountDetail = {
+                    navController.navigate(Screen.AccountDetail.route)
+                },
+                onNavigateToChangePassword = {
+                    navController.navigate(Screen.ChangePassword.route)
+                },
+                onNavigateToAbout = {
+                    navController.navigate(Screen.About.route)
+                },
+                onNavigateToWishlist = {
+                    navController.navigate(Screen.Wishlist.route)
+                },
                 onLogoutSuccess = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }
                     }
+                }
+            )
+        }
+        composable(Screen.AccountDetail.route) {
+            AccountDetailScreen(
+                onBackClick = { navController.popBackStack() },
+                onSaveSuccess = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(Screen.ChangePassword.route) {
+            ChangePasswordScreen(
+                onBackClick = { navController.popBackStack() },
+                onChangeSuccess = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(Screen.About.route) {
+            AboutScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.Wishlist.route) {
+            WishlistScreen(
+                onBackClick = { navController.popBackStack() },
+                onPropertyClick = { propertyId ->
+                    navController.navigate(Screen.Detail.createRoute(propertyId))
                 }
             )
         }

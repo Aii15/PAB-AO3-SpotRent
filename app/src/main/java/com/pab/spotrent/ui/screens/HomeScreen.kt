@@ -317,25 +317,6 @@ fun PropertyCard(property: Property, onClick: () -> Unit) {
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                
-                // Favorite Icon (Single icon, no double elements)
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(12.dp)
-                        .size(32.dp),
-                    shape = CircleShape,
-                    color = Color.White
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_like),
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = Color.Gray
-                        )
-                    }
-                }
 
                 // Property Type Tag
                 Surface(

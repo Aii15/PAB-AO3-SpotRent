@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -34,10 +35,12 @@ import com.pab.spotrent.ui.theme.SpotRentTheme
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -53,6 +56,26 @@ fun LoginScreen(
                 .fillMaxHeight(0.45f),
             contentScale = ContentScale.FillBounds
         )
+
+        // Back Button
+        Surface(
+            onClick = onBackClick,
+            modifier = Modifier
+                .statusBarsPadding()
+                .padding(24.dp)
+                .size(40.dp),
+            shape = CircleShape,
+            color = Color.White
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_back),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.Black
+                )
+            }
+        }
 
         // Top section with Logo and Text
         Column(
@@ -130,7 +153,10 @@ fun LoginScreen(
                 // Password field
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { 
+                        password = it
+                        errorMessage = "" // clear error when typing
+                    },
                     placeholder = { Text("Password", color = Color.Gray) },
                     leadingIcon = {
                         Icon(Icons.Default.Lock, contentDescription = null, tint = BrandDarkGray)
@@ -149,15 +175,30 @@ fun LoginScreen(
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
 
                 // Login Button
                 Button(
                     onClick = {
-                        if (AuthRepository.login(identifier, password)) {
-                            onLoginSuccess()
+                        if (identifier.isBlank() || password.isBlank()) {
+                            errorMessage = "Email atau password Anda salah"
                         } else {
-                            // Show error could be added here
+                            if (AuthRepository.login(identifier, password)) {
+                                errorMessage = ""
+                                onLoginSuccess()
+                            } else {
+                                errorMessage = "Email atau password Anda salah"
+                            }
                         }
                     },
                     modifier = Modifier
@@ -194,6 +235,6 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     SpotRentTheme {
-        LoginScreen(onLoginSuccess = {}, onRegisterClick = {})
+        LoginScreen(onLoginSuccess = {}, onRegisterClick = {}, onBackClick = {})
     }
 }
