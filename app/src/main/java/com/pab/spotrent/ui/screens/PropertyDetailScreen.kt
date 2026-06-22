@@ -238,12 +238,12 @@ fun PropertyDetailScreen(
                                 color = Color(0xFF2E7D32)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text("KAI", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text(property.partnerLogoText, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
-                                Text(text = "PT. Kereta Api Wisata", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(text = property.partnerName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                 Text(text = "Pengelola Operasional", fontSize = 12.sp, color = Color.Gray)
                             }
                         }
@@ -263,7 +263,7 @@ fun PropertyDetailScreen(
                             Text(text = "Spesifikasi Properti", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                             Spacer(modifier = Modifier.height(16.dp))
                             
-                            val specs = listOf(
+                            val specIconMap = mapOf(
                                 "Sanitasi" to R.drawable.ic_sanitasi,
                                 "Listrik dan Penerangan" to R.drawable.ic_listrik,
                                 "CCTV" to R.drawable.ic_cctv,
@@ -273,6 +273,9 @@ fun PropertyDetailScreen(
                                 "APAR" to R.drawable.ic_apar,
                                 "Outdoor" to R.drawable.ic_outdoor
                             )
+                            val specs = property.specifications.mapNotNull { name ->
+                                specIconMap[name]?.let { iconRes -> name to iconRes }
+                            }
 
                             Column {
                                 specs.chunked(2).forEach { rowSpecs ->

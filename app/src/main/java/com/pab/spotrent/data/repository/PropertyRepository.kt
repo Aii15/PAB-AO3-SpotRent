@@ -16,7 +16,9 @@ object PropertyRepository {
             thumbnailRes = R.drawable.prop_default,
             detailImages = listOf(R.drawable.prop_kotatua_2, R.drawable.prop_lawangsewu_1, R.drawable.prop_lawangsewu_2),
             type = "Komersial",
-            specifications = listOf("Sanitasi", "CCTV", "Sprinkler Water", "APAR", "Listrik dan Penerangan", "Parkir Mobil", "Permit Included", "Outdoor")
+            specifications = listOf("Outdoor", "Permit Included", "Parkir Mobil", "CCTV", "Sanitasi"),
+            partnerName = "UPT Kota Tua Jakarta",
+            partnerLogoText = "UPT"
         ),
         Property(
             id = 2,
@@ -29,7 +31,9 @@ object PropertyRepository {
             thumbnailRes = R.drawable.prop_lawangsewu_1,
             detailImages = listOf(R.drawable.prop_lawangsewu_2, R.drawable.prop_lawangsewu_3),
             type = "Heritage",
-            specifications = listOf("Sanitasi", "CCTV", "Sprinkler Water", "APAR", "Listrik dan Penerangan", "Parkir Mobil", "Permit Included", "Outdoor")
+            specifications = listOf("Outdoor", "Permit Included", "Listrik dan Penerangan", "APAR", "CCTV", "Sanitasi", "Sprinkler Water"),
+            partnerName = "PT. Kereta Api Wisata",
+            partnerLogoText = "KAI"
         ),
         Property(
             id = 3,
@@ -42,7 +46,9 @@ object PropertyRepository {
             thumbnailRes = R.drawable.prop_studio_1,
             detailImages = listOf(R.drawable.prop_studio_2, R.drawable.prop_studio_1),
             type = "Studio",
-            specifications = listOf("AC", "WiFi", "Listrik", "Ruang Ganti")
+            specifications = listOf("Listrik dan Penerangan", "APAR", "Sanitasi", "CCTV"),
+            partnerName = "Creative Space Studio",
+            partnerLogoText = "CSS"
         ),
         Property(
             id = 4,
@@ -55,7 +61,9 @@ object PropertyRepository {
             thumbnailRes = R.drawable.prop_villa_puncak_1,
             detailImages = listOf(R.drawable.prop_villa_puncak_2, R.drawable.prop_villa_puncak_1),
             type = "Hunian",
-            specifications = listOf("Kolam Renang", "Dapur", "Parkir", "Pemandangan")
+            specifications = listOf("Outdoor", "Sanitasi", "Parkir Mobil", "APAR", "CCTV"),
+            partnerName = "Villa Management Group",
+            partnerLogoText = "VMG"
         ),
         Property(
             id = 5,
@@ -68,7 +76,9 @@ object PropertyRepository {
             thumbnailRes = R.drawable.prop_lanskapsawah_1,
             detailImages = listOf(R.drawable.prop_lanskapsawah_2, R.drawable.prop_lanskapsawah_1),
             type = "Lanskap",
-            specifications = listOf("Akses Jalan", "Listrik Genset", "Pemandangan Alam")
+            specifications = listOf("Outdoor", "Permit Included", "Parkir Mobil"),
+            partnerName = "Balinese Nature Project",
+            partnerLogoText = "BNP"
         )
     )
 
