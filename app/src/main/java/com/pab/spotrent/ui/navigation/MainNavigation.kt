@@ -36,6 +36,9 @@ fun MainNavigation() {
                 },
                 onRegisterClick = {
                     navController.navigate(Screen.Register.route)
+                },
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -48,6 +51,9 @@ fun MainNavigation() {
                 },
                 onLoginClick = {
                     navController.navigate(Screen.Login.route)
+                },
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }

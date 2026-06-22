@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -32,7 +33,8 @@ import com.pab.spotrent.ui.theme.SpotRentTheme
 @Composable
 fun RegisterScreen(
     onRegisterSuccess: () -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -57,6 +59,26 @@ fun RegisterScreen(
                 .fillMaxHeight(0.45f),
             contentScale = ContentScale.FillBounds
         )
+
+        // Back Button
+        Surface(
+            onClick = onBackClick,
+            modifier = Modifier
+                .statusBarsPadding()
+                .padding(24.dp)
+                .size(40.dp),
+            shape = CircleShape,
+            color = Color.White
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = painterResource(id = com.pab.spotrent.R.drawable.ic_back),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.Black
+                )
+            }
+        }
 
         // Top section with Logo and Text
         Column(
@@ -290,6 +312,6 @@ fun RegisterScreen(
 @Composable
 fun RegisterScreenPreview() {
     SpotRentTheme {
-        RegisterScreen(onRegisterSuccess = {}, onLoginClick = {})
+        RegisterScreen(onRegisterSuccess = {}, onLoginClick = {}, onBackClick = {})
     }
 }

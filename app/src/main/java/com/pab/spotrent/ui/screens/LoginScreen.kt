@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -34,7 +35,8 @@ import com.pab.spotrent.ui.theme.SpotRentTheme
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -54,6 +56,26 @@ fun LoginScreen(
                 .fillMaxHeight(0.45f),
             contentScale = ContentScale.FillBounds
         )
+
+        // Back Button
+        Surface(
+            onClick = onBackClick,
+            modifier = Modifier
+                .statusBarsPadding()
+                .padding(24.dp)
+                .size(40.dp),
+            shape = CircleShape,
+            color = Color.White
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_back),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.Black
+                )
+            }
+        }
 
         // Top section with Logo and Text
         Column(
@@ -213,6 +235,6 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     SpotRentTheme {
-        LoginScreen(onLoginSuccess = {}, onRegisterClick = {})
+        LoginScreen(onLoginSuccess = {}, onRegisterClick = {}, onBackClick = {})
     }
 }
