@@ -65,12 +65,14 @@ fun AboutScreen(
                 .padding(horizontal = 24.dp, vertical = 24.dp)
                 .verticalScroll(scrollState)
         ) {
-            val contentText = "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Suspendisse Ipsum Dolor, Venenatis Ut Egestas Quis, Accumsan Eu Mi. Duis Nibh Mi, Dibus Nec Arcu Sit Amet, Iaculis Aliquet Magna. Aliquam Pharetra Libero Urna, Ac Consectetur Sapien Aliquam Sit Amet. Nulla Lacinia, Eros Non Ultrices Vestibulum, Ligula Felis Laoreet Mi, Nec Placerat Ligula Est Vel Neque. Donec Rutrum Dui Non Purus Ultrices Cursus Quis Non Mauris. Aenean Maximus Ornare Fringilla. Nullam Ac Feugiat Lorem. Pellentesque Egestas Dolor Ac Est Consequat Semper. Suspendisse Pretium Porta Laoreet. Ut Eget Erat Dui. Aliquam Venenatis Interdum Nunc Id Dibus. Sed Non Congue Massa. Integer Lectus Velit, Pulvinar Ut Maximus Pulvinar, Bibendum Ac Ipsum. Aliquam Nec Lorem Velit."
+            val contentParagraph1 = "SpotRent merupakan platform digital penyewaan lokasi dan properti yang dikhususkan untuk kebutuhan syuting komersial. Platform ini dirancang untuk menjadi penghubung antara pemilik properti (mitra) dan pihak kreatif seperti produser atau location manager (user) yang membutuhkan lokasi untuk kebutuhan produksi film, video, maupun komersial."
+            val contentParagraph2 = "Dengan mempermudah proses pencarian, pemilihan, pemesanan, hingga pembayaran lokasi syuting secara terpusat, SpotRent bertujuan untuk menciptakan ekosistem penyewaan yang efisien dan cepat, sehingga dapat membantu menghemat waktu serta tenaga pada tahap pra-produksi bagi industri kreatif."
 
             Text(
-                text = contentText,
+                text = contentParagraph1,
                 fontSize = 14.sp,
                 color = Color.Black,
+                fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Justify,
                 lineHeight = 22.sp
             )
@@ -78,9 +80,10 @@ fun AboutScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = contentText,
+                text = contentParagraph2,
                 fontSize = 14.sp,
                 color = Color.Black,
+                fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Justify,
                 lineHeight = 22.sp
             )
