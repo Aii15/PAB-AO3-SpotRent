@@ -22,4 +22,7 @@ sealed class Screen(val route: String) {
         fun createRoute(propertyId: Int, startDate: Long, endDate: Long, paymentMethod: String) = 
             "payment_confirmation/$propertyId/$startDate/$endDate/$paymentMethod"
     }
+    object BookingDetail : Screen("booking_detail/{bookingId}") {
+        fun createRoute(bookingId: String) = "booking_detail/$bookingId"
+    }
 }

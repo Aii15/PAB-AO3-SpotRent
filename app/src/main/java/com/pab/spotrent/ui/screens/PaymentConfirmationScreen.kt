@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,9 +22,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pab.spotrent.R
+import com.pab.spotrent.data.model.Booking
+import com.pab.spotrent.data.repository.BookingRepository
 import com.pab.spotrent.data.repository.PropertyRepository
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandYellow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -35,13 +40,18 @@ fun PaymentConfirmationScreen(
     endDate: Long,
     paymentMethod: String,
     onBackClick: () -> Unit,
-    onChangeDateClick: () -> Unit
+    onChangeDateClick: () -> Unit,
+    onPaymentSuccess: () -> Unit
 ) {
     val property = PropertyRepository.getPropertyById(propertyId) ?: return
+    val scope = rememberCoroutineScope()
     
     val diffInMillis = endDate - startDate
     val days = (TimeUnit.MILLISECONDS.toDays(diffInMillis) + 1).toInt()
     val totalPrice = property.price * days
+
+    var isProcessing by remember { mutableStateOf(false) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -77,7 +87,7 @@ fun PaymentConfirmationScreen(
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            border = BorderStroke(1.5.dp, Color(0xFFE0E0E0)), // Increased thickness and slightly darker border
+            border = BorderStroke(1.5.dp, Color(0xFFE0E0E0)),
             color = Color.White
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -87,7 +97,7 @@ fun PaymentConfirmationScreen(
                         painter = painterResource(id = property.thumbnailRes),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(70.dp) // Slightly smaller for better fit
+                            .size(70.dp)
                             .clip(RoundedCornerShape(12.dp)),
                         contentScale = ContentScale.Crop
                     )
@@ -134,7 +144,7 @@ fun PaymentConfirmationScreen(
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
-                Divider(color = Color(0xFFEEEEEE), thickness = 1.dp)
+                HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 1.dp)
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // Date Range Section - VERTICAL STACKED & CENTERED
@@ -156,7 +166,6 @@ fun PaymentConfirmationScreen(
                     
                     Spacer(modifier = Modifier.height(12.dp))
                     
-                    // Arrow pointing down to show flow
                     Icon(
                         painter = painterResource(id = R.drawable.ic_back),
                         contentDescription = null,
@@ -181,19 +190,18 @@ fun PaymentConfirmationScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
                 
-                // Change Date Button
                 OutlinedButton(
                     onClick = onChangeDateClick,
                     modifier = Modifier.align(Alignment.CenterHorizontally).height(36.dp),
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp),
                     shape = RoundedCornerShape(18.dp),
-                    border = BorderStroke(1.5.dp, BrandDarkGray) // Consistent border thickness
+                    border = BorderStroke(1.5.dp, BrandDarkGray)
                 ) {
                     Text(text = "Ubah Tanggal", color = BrandDarkGray, fontSize = 12.sp)
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
-                Divider(color = Color(0xFFEEEEEE), thickness = 1.dp)
+                HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 1.dp)
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // Total Price
@@ -222,21 +230,95 @@ fun PaymentConfirmationScreen(
                 .padding(24.dp)
         ) {
             Button(
-                onClick = { /* Non-functional for now as per instruction */ },
+                onClick = {
+                    scope.launch {
+                        isProcessing = true
+                        delay(2000) // Simulate network delay
+                        
+                        // Add to repository
+                        BookingRepository.addBooking(
+                            Booking(
+                                id = BookingRepository.generateBookingId(),
+                                propertyId = propertyId,
+                                propertyName = property.name,
+                                propertyLocation = property.location,
+                                propertyThumbnail = property.thumbnailRes,
+                                startDate = startDate,
+                                endDate = endDate,
+                                totalPrice = totalPrice,
+                                paymentMethod = paymentMethod
+                            )
+                        )
+                        
+                        isProcessing = false
+                        showSuccessDialog = true
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
+                colors = ButtonDefaults.buttonColors(containerColor = BrandYellow),
+                enabled = !isProcessing
             ) {
-                Text(
-                    text = "BAYAR",
-                    color = BrandDarkGray,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
+                if (isProcessing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = BrandDarkGray,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = "BAYAR",
+                        color = BrandDarkGray,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
+    }
+
+    if (showSuccessDialog) {
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showSuccessDialog = false
+                        onPaymentSuccess()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
+                ) {
+                    Text("OK", color = BrandDarkGray, fontWeight = FontWeight.Bold)
+                }
+            },
+            title = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = Color(0xFF4CAF50),
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = "Pembayaran Berhasil", fontWeight = FontWeight.Bold, color = BrandDarkGray)
+                }
+            },
+            text = {
+                Text(
+                    text = "Pesanan Anda telah berhasil dikonfirmasi. Silakan cek riwayat booking Anda.",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = BrandDarkGray
+                )
+            },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = Color.White
+        )
     }
 }
 

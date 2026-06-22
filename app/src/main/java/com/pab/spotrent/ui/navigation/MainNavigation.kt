@@ -14,6 +14,8 @@ import com.pab.spotrent.ui.screens.BookingCalendarScreen
 import com.pab.spotrent.ui.screens.PaymentMethodScreen
 import com.pab.spotrent.ui.screens.PaymentConfirmationScreen
 import com.pab.spotrent.ui.screens.ProfileScreen
+import com.pab.spotrent.ui.screens.HistoryScreen
+import com.pab.spotrent.ui.screens.BookingDetailScreen
 import com.pab.spotrent.data.repository.AuthRepository
 
 @Composable
@@ -135,11 +137,41 @@ fun MainNavigation() {
                     navController.navigate(Screen.BookingCalendar.createRoute(propertyId)) {
                         popUpTo(Screen.BookingCalendar.route) { inclusive = true }
                     }
+                },
+                onPaymentSuccess = {
+                    navController.navigate(Screen.History.route) {
+                        popUpTo(Screen.Home.route)
+                    }
                 }
             )
         }
         composable(Screen.History.route) {
-            // Placeholder for History
+            HistoryScreen(
+                onBackClick = { navController.popBackStack() },
+                onBookingClick = { bookingId ->
+                    navController.navigate(Screen.BookingDetail.createRoute(bookingId))
+                },
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Screen.Profile.route) {
+                        popUpTo(Screen.Home.route)
+                    }
+                }
+            )
+        }
+        composable(
+            route = Screen.BookingDetail.route,
+            arguments = listOf(navArgument("bookingId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val bookingId = backStackEntry.arguments?.getString("bookingId") ?: ""
+            BookingDetailScreen(
+                bookingId = bookingId,
+                onBackClick = { navController.popBackStack() }
+            )
         }
         composable(Screen.Profile.route) {
             ProfileScreen(
