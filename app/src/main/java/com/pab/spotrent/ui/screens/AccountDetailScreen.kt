@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pab.spotrent.R
@@ -46,6 +48,8 @@ fun AccountDetailScreen(
 
     var showPassword by remember { mutableStateOf(false) }
     val passwordState = remember { AuthRepository.getCurrentUserPassword() }
+    
+    var showSuccessDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -197,8 +201,7 @@ fun AccountDetailScreen(
                         isEditingName = false
                         isEditingPhone = false
                         isEditingEmail = false
-                        Toast.makeText(context, "Profil berhasil disimpan", Toast.LENGTH_SHORT).show()
-                        onSaveSuccess()
+                        showSuccessDialog = true
                     } else {
                         Toast.makeText(context, "Gagal menyimpan profil", Toast.LENGTH_SHORT).show()
                     }
@@ -222,6 +225,48 @@ fun AccountDetailScreen(
                 )
             }
         }
+    }
+
+    if (showSuccessDialog) {
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showSuccessDialog = false
+                        onSaveSuccess()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
+                ) {
+                    Text("OK", color = BrandDarkGray, fontWeight = FontWeight.Bold)
+                }
+            },
+            title = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = Color(0xFF4CAF50),
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = "Profil Diperbarui", fontWeight = FontWeight.Bold, color = BrandDarkGray)
+                }
+            },
+            text = {
+                Text(
+                    text = "Perubahan informasi profil Anda telah berhasil disimpan.",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = BrandDarkGray
+                )
+            },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = Color.White
+        )
     }
 }
 
