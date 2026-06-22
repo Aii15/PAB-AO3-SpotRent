@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -80,53 +82,58 @@ fun RegisterScreen(
             }
         }
 
-        // Top section with Logo and Text
+        // Main layout Column
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.4f)
-                .statusBarsPadding(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .fillMaxSize()
+                .statusBarsPadding()
         ) {
-            // Logo from drawable
-            Image(
-                painter = painterResource(id = com.pab.spotrent.R.drawable.logo_spotrent),
-                contentDescription = "Logo SpotRent",
-                modifier = Modifier.size(120.dp)
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = "SpotRent",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
-
-        // Bottom section with Register Card
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter),
-            shape = RoundedCornerShape(topStart = 48.dp, topEnd = 48.dp),
-            color = Color.White
-        ) {
+            // Top section with Logo and Text
             Column(
                 modifier = Modifier
-                    .navigationBarsPadding()
                     .fillMaxWidth()
-                    .padding(horizontal = 32.dp, vertical = 24.dp),
+                    .padding(top = 24.dp, bottom = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Logo from drawable
+                Image(
+                    painter = painterResource(id = com.pab.spotrent.R.drawable.logo_spotrent),
+                    contentDescription = "Logo SpotRent",
+                    modifier = Modifier.size(100.dp)
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
                 Text(
-                    text = "Register",
+                    text = "SpotRent",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
-                    color = BrandDarkGray
+                    color = Color.White
                 )
+            }
+
+            // Bottom section with Register Card
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                shape = RoundedCornerShape(topStart = 48.dp, topEnd = 48.dp),
+                color = Color.White
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .navigationBarsPadding()
+                        .padding(horizontal = 32.dp, vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Register",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = BrandDarkGray
+                    )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -306,6 +313,7 @@ fun RegisterScreen(
             }
         }
     }
+}
 }
 
 @Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_7)
