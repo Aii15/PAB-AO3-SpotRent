@@ -38,7 +38,9 @@ import java.util.*
 @Composable
 fun HomeScreen(
     onPropertyClick: (Int) -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    onProfileClick: () -> Unit,
+    onHistoryClick: () -> Unit
 ) {
     val properties = PropertyRepository.dummyProperties
     val categories = listOf("Semua", "Komersial", "Hunian", "Lanskap", "Studio", "Heritage")
@@ -105,7 +107,7 @@ fun HomeScreen(
                                 color = Color.White.copy(alpha = 0.2f),
                                 modifier = Modifier
                                     .size(40.dp)
-                                    .clickable { /* Go to profile */ }
+                                    .clickable { onProfileClick() }
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_profile),
@@ -209,7 +211,7 @@ fun HomeScreen(
                         onClick = { selectedCategory = category },
                         shape = RoundedCornerShape(20.dp),
                         color = if (isSelected) BrandYellow else Color.White,
-                        border = if (isSelected) null else BorderStroke(1.dp, Color(0xFFEEEEEE)),
+                        border = if (isSelected) null else BorderStroke(1.5.dp, Color(0xFFE0E0E0)), // Increased thickness
                         shadowElevation = if (isSelected) 4.dp else 2.dp
                     ) {
                         Text(
@@ -274,9 +276,24 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                BottomNavItem(iconRes = R.drawable.ic_home, label = "Beranda", isSelected = true)
-                BottomNavItem(iconRes = R.drawable.ic_history, label = "Riwayat", isSelected = false)
-                BottomNavItem(iconRes = R.drawable.ic_profile, label = "Profil", isSelected = false)
+                BottomNavItem(
+                    iconRes = R.drawable.ic_home, 
+                    label = "Beranda", 
+                    isSelected = true,
+                    onClick = { /* Stay on Home */ }
+                )
+                BottomNavItem(
+                    iconRes = R.drawable.ic_history, 
+                    label = "Riwayat", 
+                    isSelected = false,
+                    onClick = onHistoryClick
+                )
+                BottomNavItem(
+                    iconRes = R.drawable.ic_profile, 
+                    label = "Profil", 
+                    isSelected = false,
+                    onClick = onProfileClick
+                )
             }
         }
     }
@@ -404,12 +421,17 @@ fun PropertyCard(property: Property, onClick: () -> Unit) {
 }
 
 @Composable
-fun BottomNavItem(iconRes: Int, label: String, isSelected: Boolean) {
+fun BottomNavItem(
+    iconRes: Int, 
+    label: String, 
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .clickable { }
+            .clickable(onClick = onClick)
             .padding(8.dp)
     ) {
         Icon(
@@ -436,6 +458,6 @@ fun formatPrice(price: Long): String {
 @Composable
 fun HomeScreenPreview() {
     SpotRentTheme {
-        HomeScreen(onPropertyClick = {}, onLoginClick = {})
+        HomeScreen(onPropertyClick = {}, onLoginClick = {}, onProfileClick = {}, onHistoryClick = {})
     }
 }

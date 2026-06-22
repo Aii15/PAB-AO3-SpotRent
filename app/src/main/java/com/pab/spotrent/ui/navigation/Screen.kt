@@ -9,4 +9,17 @@ sealed class Screen(val route: String) {
     }
     object History : Screen("history")
     object Profile : Screen("profile")
+    
+    // Booking screens
+    object BookingCalendar : Screen("booking_calendar/{propertyId}") {
+        fun createRoute(propertyId: Int) = "booking_calendar/$propertyId"
+    }
+    object PaymentMethod : Screen("payment_method/{propertyId}/{startDate}/{endDate}") {
+        fun createRoute(propertyId: Int, startDate: Long, endDate: Long) = 
+            "payment_method/$propertyId/$startDate/$endDate"
+    }
+    object PaymentConfirmation : Screen("payment_confirmation/{propertyId}/{startDate}/{endDate}/{paymentMethod}") {
+        fun createRoute(propertyId: Int, startDate: Long, endDate: Long, paymentMethod: String) = 
+            "payment_confirmation/$propertyId/$startDate/$endDate/$paymentMethod"
+    }
 }

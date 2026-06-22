@@ -33,7 +33,8 @@ import java.util.*
 @Composable
 fun PropertyDetailScreen(
     propertyId: Int,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onBookingClick: () -> Unit
 ) {
     val property = PropertyRepository.getPropertyById(propertyId) ?: return
     val scrollState = rememberScrollState()
@@ -214,7 +215,7 @@ fun PropertyDetailScreen(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFFEEEEEE)),
+                        border = BorderStroke(1.5.dp, Color(0xFFE0E0E0)), // Increased thickness
                         color = Color.White,
                         contentColor = BrandDarkGray
                     ) {
@@ -245,7 +246,7 @@ fun PropertyDetailScreen(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFFEEEEEE)),
+                        border = BorderStroke(1.5.dp, Color(0xFFE0E0E0)), // Increased thickness
                         color = Color.White,
                         contentColor = BrandDarkGray
                     ) {
@@ -355,7 +356,7 @@ fun PropertyDetailScreen(
                     }
                     
                     Button(
-                        onClick = { },
+                        onClick = onBookingClick,
                         modifier = Modifier
                             .width(160.dp)
                             .height(48.dp),
@@ -422,6 +423,6 @@ fun ReviewCard() {
 @Composable
 fun PropertyDetailScreenPreview() {
     SpotRentTheme {
-        PropertyDetailScreen(propertyId = 1, onBackClick = {})
+        PropertyDetailScreen(propertyId = 1, onBackClick = {}, onBookingClick = {})
     }
 }
