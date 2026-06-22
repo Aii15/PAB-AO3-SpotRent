@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.pab.spotrent.R
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import com.pab.spotrent.data.repository.AuthRepository
 import com.pab.spotrent.ui.theme.BrandDarkBlue
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandLightGray
@@ -114,6 +115,8 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = BrandDarkGray,
+                        unfocusedTextColor = BrandDarkGray,
                         focusedContainerColor = BrandLightGray,
                         unfocusedContainerColor = BrandLightGray,
                         focusedBorderColor = Color.Transparent,
@@ -136,6 +139,8 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = BrandDarkGray,
+                        unfocusedTextColor = BrandDarkGray,
                         focusedContainerColor = BrandLightGray,
                         unfocusedContainerColor = BrandLightGray,
                         focusedBorderColor = Color.Transparent,
@@ -148,7 +153,13 @@ fun LoginScreen(
 
                 // Login Button
                 Button(
-                    onClick = onLoginSuccess,
+                    onClick = {
+                        if (AuthRepository.login(identifier, password)) {
+                            onLoginSuccess()
+                        } else {
+                            // Show error could be added here
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),

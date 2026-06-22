@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pab.spotrent.R
 import com.pab.spotrent.data.model.Property
+import com.pab.spotrent.data.repository.AuthRepository
 import com.pab.spotrent.data.repository.PropertyRepository
 import com.pab.spotrent.ui.theme.BrandDarkBlue
 import com.pab.spotrent.ui.theme.BrandDarkGray
@@ -43,6 +44,8 @@ fun HomeScreen(
     val categories = listOf("Semua", "Komersial", "Hunian", "Lanskap", "Studio", "Heritage")
     var selectedCategory by remember { mutableStateOf("Semua") }
     var searchQuery by remember { mutableStateOf("") }
+    
+    val currentUser by AuthRepository.currentUser.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         // Main Scrollable Content
@@ -95,18 +98,37 @@ fun HomeScreen(
                             )
                         }
                         
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = BrandYellow,
-                            modifier = Modifier.clickable { onLoginClick() }
-                        ) {
-                            Text(
-                                text = "Masuk",
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = BrandDarkGray
-                            )
+                        if (currentUser != null) {
+                            // Profile Icon when logged in
+                            Surface(
+                                shape = CircleShape,
+                                color = Color.White.copy(alpha = 0.2f),
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clickable { /* Go to profile */ }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_profile),
+                                    contentDescription = "Profile",
+                                    modifier = Modifier.padding(8.dp),
+                                    tint = Color.White
+                                )
+                            }
+                        } else {
+                            // Login Button when not logged in
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = BrandYellow,
+                                modifier = Modifier.clickable { onLoginClick() }
+                            ) {
+                                Text(
+                                    text = "Masuk",
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = BrandDarkGray
+                                )
+                            }
                         }
                     }
 
