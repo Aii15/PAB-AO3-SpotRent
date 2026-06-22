@@ -26,7 +26,7 @@ import com.pab.spotrent.data.repository.AuthRepository
 fun MainNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Screen.Login.route) {
+    NavHost(navController = navController, startDestination = Screen.Home.route) {
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = {
@@ -60,10 +60,18 @@ fun MainNavigation() {
                     navController.navigate(Screen.Login.route)
                 },
                 onProfileClick = {
-                    navController.navigate(Screen.Profile.route)
+                    if (AuthRepository.isLoggedIn()) {
+                        navController.navigate(Screen.Profile.route)
+                    } else {
+                        navController.navigate(Screen.Login.route)
+                    }
                 },
                 onHistoryClick = {
-                    navController.navigate(Screen.History.route)
+                    if (AuthRepository.isLoggedIn()) {
+                        navController.navigate(Screen.History.route)
+                    } else {
+                        navController.navigate(Screen.Login.route)
+                    }
                 }
             )
         }
