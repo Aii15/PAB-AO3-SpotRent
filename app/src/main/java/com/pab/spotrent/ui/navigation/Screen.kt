@@ -10,6 +10,7 @@ sealed class Screen(val route: String) {
     object History : Screen("history")
     object Profile : Screen("profile")
     object AccountDetail : Screen("account_detail")
+    object ChangePassword : Screen("change_password")
     
     // Booking screens
     object BookingCalendar : Screen("booking_calendar/{propertyId}") {

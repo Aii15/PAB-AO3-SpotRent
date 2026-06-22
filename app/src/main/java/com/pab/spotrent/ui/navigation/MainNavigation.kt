@@ -17,6 +17,7 @@ import com.pab.spotrent.ui.screens.ProfileScreen
 import com.pab.spotrent.ui.screens.HistoryScreen
 import com.pab.spotrent.ui.screens.BookingDetailScreen
 import com.pab.spotrent.ui.screens.AccountDetailScreen
+import com.pab.spotrent.ui.screens.ChangePasswordScreen
 import com.pab.spotrent.data.repository.AuthRepository
 
 @Composable
@@ -187,6 +188,9 @@ fun MainNavigation() {
                 onNavigateToAccountDetail = {
                     navController.navigate(Screen.AccountDetail.route)
                 },
+                onNavigateToChangePassword = {
+                    navController.navigate(Screen.ChangePassword.route)
+                },
                 onLogoutSuccess = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }
@@ -198,6 +202,14 @@ fun MainNavigation() {
             AccountDetailScreen(
                 onBackClick = { navController.popBackStack() },
                 onSaveSuccess = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(Screen.ChangePassword.route) {
+            ChangePasswordScreen(
+                onBackClick = { navController.popBackStack() },
+                onChangeSuccess = {
                     navController.popBackStack()
                 }
             )

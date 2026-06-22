@@ -34,11 +34,11 @@ fun ProfileScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToAccountDetail: () -> Unit,
+    onNavigateToChangePassword: () -> Unit,
     onLogoutSuccess: () -> Unit
 ) {
     val currentUser by AuthRepository.currentUser.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
-    var showPasswordDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -71,7 +71,7 @@ fun ProfileScreen(
                 ProfileMenuItem(
                     iconRes = R.drawable.ic_key,
                     label = "Ganti Kata Sandi",
-                    onClick = { showPasswordDialog = true }
+                    onClick = onNavigateToChangePassword
                 )
                 ProfileMenuItem(
                     iconRes = R.drawable.ic_history,
@@ -229,106 +229,6 @@ fun ProfileScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showLogoutDialog = false }) {
-                    Text("Batal", color = BrandDarkGray)
-                }
-            },
-            shape = RoundedCornerShape(24.dp),
-            containerColor = Color.White
-        )
-    }
-
-    // Dialog Ganti Kata Sandi
-    if (showPasswordDialog) {
-        var newPassword by remember { mutableStateOf("") }
-        var confirmNewPassword by remember { mutableStateOf("") }
-        var passwordError by remember { mutableStateOf("") }
-        var confirmPasswordError by remember { mutableStateOf("") }
-
-        AlertDialog(
-            onDismissRequest = { showPasswordDialog = false },
-            title = { Text(text = "Ganti Kata Sandi", fontWeight = FontWeight.Bold, color = BrandDarkGray) },
-            text = {
-                Column {
-                    Text(text = "Masukkan kata sandi baru Anda.", color = BrandDarkGray, modifier = Modifier.padding(bottom = 8.dp))
-                    OutlinedTextField(
-                        value = newPassword,
-                        onValueChange = { 
-                            newPassword = it
-                            passwordError = ""
-                        },
-                        placeholder = { Text("Kata Sandi Baru", color = Color.Gray) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        isError = passwordError.isNotEmpty(),
-                        supportingText = {
-                            if (passwordError.isNotEmpty()) {
-                                Text(text = passwordError, color = Color.Red)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = BrandDarkGray,
-                            unfocusedTextColor = BrandDarkGray,
-                            focusedBorderColor = if (passwordError.isNotEmpty()) Color.Red else BrandDarkBlue,
-                            unfocusedBorderColor = if (passwordError.isNotEmpty()) Color.Red else Color.LightGray
-                        ),
-                        singleLine = true
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = confirmNewPassword,
-                        onValueChange = { 
-                            confirmNewPassword = it
-                            confirmPasswordError = ""
-                        },
-                        placeholder = { Text("Konfirmasi Kata Sandi Baru", color = Color.Gray) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        isError = confirmPasswordError.isNotEmpty(),
-                        supportingText = {
-                            if (confirmPasswordError.isNotEmpty()) {
-                                Text(text = confirmPasswordError, color = Color.Red)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = BrandDarkGray,
-                            unfocusedTextColor = BrandDarkGray,
-                            focusedBorderColor = if (confirmPasswordError.isNotEmpty()) Color.Red else BrandDarkBlue,
-                            unfocusedBorderColor = if (confirmPasswordError.isNotEmpty()) Color.Red else Color.LightGray
-                        ),
-                        singleLine = true
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        var hasErr = false
-                        if (newPassword.length < 8) {
-                            passwordError = "Password minimal 8 karakter"
-                            hasErr = true
-                        }
-                        if (confirmNewPassword != newPassword) {
-                            confirmPasswordError = "Konfirmasi password tidak cocok"
-                            hasErr = true
-                        }
-                        if (!hasErr) {
-                            val success = AuthRepository.updatePassword(newPassword)
-                            if (success) {
-                                showPasswordDialog = false
-                            } else {
-                                passwordError = "Gagal mengubah kata sandi"
-                            }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
-                ) {
-                    Text("Simpan", color = BrandDarkGray, fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showPasswordDialog = false }) {
                     Text("Batal", color = BrandDarkGray)
                 }
             },
