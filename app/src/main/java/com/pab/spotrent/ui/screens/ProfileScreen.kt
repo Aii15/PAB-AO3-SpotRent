@@ -36,6 +36,7 @@ fun ProfileScreen(
     onNavigateToAccountDetail: () -> Unit,
     onNavigateToChangePassword: () -> Unit,
     onNavigateToAbout: () -> Unit,
+    onNavigateToWishlist: () -> Unit,
     onLogoutSuccess: () -> Unit
 ) {
     val currentUser by AuthRepository.currentUser.collectAsState()
@@ -87,7 +88,7 @@ fun ProfileScreen(
                 ProfileMenuItem(
                     iconRes = R.drawable.ic_heart,
                     label = "Lihat Wishlist",
-                    onClick = { /* Not implemented */ }
+                    onClick = onNavigateToWishlist
                 )
                 ProfileMenuItem(
                     iconRes = R.drawable.ic_logout,

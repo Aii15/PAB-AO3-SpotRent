@@ -23,6 +23,8 @@ import com.pab.spotrent.R
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import com.pab.spotrent.data.repository.PropertyRepository
+import com.pab.spotrent.data.repository.WishlistRepository
+import com.pab.spotrent.data.repository.AuthRepository
 import com.pab.spotrent.ui.theme.BrandDarkBlue
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandYellow
@@ -34,10 +36,14 @@ import java.util.*
 fun PropertyDetailScreen(
     propertyId: Int,
     onBackClick: () -> Unit,
-    onBookingClick: () -> Unit
+    onBookingClick: () -> Unit,
+    onLoginRequired: () -> Unit
 ) {
     val property = PropertyRepository.getPropertyById(propertyId) ?: return
     val scrollState = rememberScrollState()
+    
+    val wishlistedIds by WishlistRepository.wishlistedIds.collectAsState()
+    val isWishlisted = wishlistedIds.contains(propertyId)
     
     // Images for pager from property model
     val propertyImages = property.detailImages
@@ -115,27 +121,6 @@ fun PropertyDetailScreen(
                         )
                     }
                 }
-
-                // Favorite Button
-                Surface(
-                    onClick = { /* Handle favorite */ },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .statusBarsPadding()
-                        .padding(24.dp)
-                        .size(40.dp),
-                    shape = CircleShape,
-                    color = Color.White
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_like),
-                            contentDescription = "Favorite",
-                            modifier = Modifier.size(20.dp),
-                            tint = Color.Gray
-                        )
-                    }
-                }
             }
 
             // Property Info Card
@@ -160,12 +145,36 @@ fun PropertyDetailScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    Text(
-                        text = property.name,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = BrandDarkGray
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = property.name,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = BrandDarkGray,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(
+                            onClick = {
+                                if (AuthRepository.isLoggedIn()) {
+                                    WishlistRepository.toggleWishlist(propertyId)
+                                } else {
+                                    onLoginRequired()
+                                }
+                            },
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_like),
+                                contentDescription = "Wishlist",
+                                tint = if (isWishlisted) Color.Red else Color.Gray,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -423,6 +432,6 @@ fun ReviewCard() {
 @Composable
 fun PropertyDetailScreenPreview() {
     SpotRentTheme {
-        PropertyDetailScreen(propertyId = 1, onBackClick = {}, onBookingClick = {})
+        PropertyDetailScreen(propertyId = 1, onBackClick = {}, onBookingClick = {}, onLoginRequired = {})
     }
 }

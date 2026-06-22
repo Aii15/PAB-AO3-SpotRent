@@ -11,7 +11,7 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
 
     companion object {
         private const val DATABASE_NAME = "spotrent.db"
-        private const val DATABASE_VERSION = 2 // Incremented for schema change
+        private const val DATABASE_VERSION = 3 // Incremented for wishlist schema change
 
         const val TABLE_USERS = "users"
         const val COLUMN_ID = "id"
@@ -20,6 +20,11 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         const val COLUMN_FULL_NAME = "fullName"
         const val COLUMN_PASSWORD = "password"
         const val COLUMN_PHONE = "phone"
+
+        const val TABLE_WISHLIST = "wishlist"
+        const val COLUMN_WISHLIST_ID = "id"
+        const val COLUMN_WISHLIST_USER_ID = "userId"
+        const val COLUMN_WISHLIST_PROPERTY_ID = "propertyId"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -34,6 +39,16 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             )
         """.trimIndent()
         db.execSQL(createTableQuery)
+
+        val createWishlistTableQuery = """
+            CREATE TABLE $TABLE_WISHLIST (
+                $COLUMN_WISHLIST_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COLUMN_WISHLIST_USER_ID INTEGER,
+                $COLUMN_WISHLIST_PROPERTY_ID INTEGER,
+                UNIQUE($COLUMN_WISHLIST_USER_ID, $COLUMN_WISHLIST_PROPERTY_ID)
+            )
+        """.trimIndent()
+        db.execSQL(createWishlistTableQuery)
 
         // Insert default dummy users
         insertDummyUser(db, 1, "admin", "admin@spotrent.com", "Admin SpotRent", "password123", "081234567890")
@@ -54,6 +69,7 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_WISHLIST")
         onCreate(db)
     }
 
@@ -134,5 +150,36 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         }
         val rows = db.update(TABLE_USERS, values, "$COLUMN_ID = ?", arrayOf(userId.toString()))
         return rows > 0
+    }
+
+    // Wishlist functions
+    fun addToWishlist(userId: Int, propertyId: Int): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_WISHLIST_USER_ID, userId)
+            put(COLUMN_WISHLIST_PROPERTY_ID, propertyId)
+        }
+        val result = db.insertWithOnConflict(TABLE_WISHLIST, null, values, SQLiteDatabase.CONFLICT_REPLACE)
+        return result != -1L
+    }
+
+    fun removeFromWishlist(userId: Int, propertyId: Int): Boolean {
+        val db = writableDatabase
+        val rows = db.delete(TABLE_WISHLIST, "$COLUMN_WISHLIST_USER_ID = ? AND $COLUMN_WISHLIST_PROPERTY_ID = ?", arrayOf(userId.toString(), propertyId.toString()))
+        return rows > 0
+    }
+
+    fun getUserWishlist(userId: Int): List<Int> {
+        val db = readableDatabase
+        val query = "SELECT $COLUMN_WISHLIST_PROPERTY_ID FROM $TABLE_WISHLIST WHERE $COLUMN_WISHLIST_USER_ID = ?"
+        val cursor = db.rawQuery(query, arrayOf(userId.toString()))
+        val list = mutableListOf<Int>()
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(cursor.getInt(0))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return list
     }
 }

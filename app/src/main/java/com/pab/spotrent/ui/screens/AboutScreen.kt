@@ -101,7 +101,7 @@ fun AboutScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
             ) {
                 Text(
-                    text = "LANJUTKAN",
+                    text = "KEMBALI",
                     color = BrandDarkGray,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp

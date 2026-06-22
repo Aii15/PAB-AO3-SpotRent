@@ -19,6 +19,7 @@ import com.pab.spotrent.ui.screens.BookingDetailScreen
 import com.pab.spotrent.ui.screens.AccountDetailScreen
 import com.pab.spotrent.ui.screens.ChangePasswordScreen
 import com.pab.spotrent.ui.screens.AboutScreen
+import com.pab.spotrent.ui.screens.WishlistScreen
 import com.pab.spotrent.data.repository.AuthRepository
 
 @Composable
@@ -80,6 +81,9 @@ fun MainNavigation() {
                     } else {
                         navController.navigate(Screen.Login.route)
                     }
+                },
+                onLoginRequired = {
+                    navController.navigate(Screen.Login.route)
                 }
             )
         }
@@ -195,6 +199,9 @@ fun MainNavigation() {
                 onNavigateToAbout = {
                     navController.navigate(Screen.About.route)
                 },
+                onNavigateToWishlist = {
+                    navController.navigate(Screen.Wishlist.route)
+                },
                 onLogoutSuccess = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }
@@ -221,6 +228,14 @@ fun MainNavigation() {
         composable(Screen.About.route) {
             AboutScreen(
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.Wishlist.route) {
+            WishlistScreen(
+                onBackClick = { navController.popBackStack() },
+                onPropertyClick = { propertyId ->
+                    navController.navigate(Screen.Detail.createRoute(propertyId))
+                }
             )
         }
     }
