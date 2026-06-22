@@ -1,5 +1,6 @@
 package com.pab.spotrent.data.repository
 
+import com.pab.spotrent.R
 import com.pab.spotrent.data.model.Booking
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +25,7 @@ object BookingRepository {
             propertyId = 1,
             propertyName = "Kota Tua Jakarta",
             propertyLocation = "Jakarta Barat",
-            propertyThumbnail = 0,
+            propertyThumbnail = R.drawable.prop_default,
             startDate = dummyStart,
             endDate = dummyEnd,
             totalPrice = 45000000L,

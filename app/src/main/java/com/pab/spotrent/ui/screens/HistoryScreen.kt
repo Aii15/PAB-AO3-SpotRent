@@ -151,8 +151,9 @@ fun BookingHistoryItem(booking: Booking, onClick: () -> Unit) {
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val thumbnailRes = if (booking.propertyThumbnail != 0) booking.propertyThumbnail else R.drawable.prop_default
             Image(
-                painter = painterResource(id = booking.propertyThumbnail),
+                painter = painterResource(id = thumbnailRes),
                 contentDescription = null,
                 modifier = Modifier
                     .size(80.dp)
