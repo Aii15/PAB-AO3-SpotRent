@@ -10,6 +10,13 @@ import com.pab.spotrent.ui.screens.HomeScreen
 import com.pab.spotrent.ui.screens.LoginScreen
 import com.pab.spotrent.ui.screens.RegisterScreen
 import com.pab.spotrent.ui.screens.PropertyDetailScreen
+import com.pab.spotrent.ui.screens.BookingCalendarScreen
+import com.pab.spotrent.ui.screens.PaymentMethodScreen
+import com.pab.spotrent.ui.screens.PaymentConfirmationScreen
+import com.pab.spotrent.ui.screens.ProfileScreen
+import com.pab.spotrent.ui.screens.HistoryScreen
+import com.pab.spotrent.ui.screens.BookingDetailScreen
+import com.pab.spotrent.data.repository.AuthRepository
 
 @Composable
 fun MainNavigation() {
@@ -47,6 +54,12 @@ fun MainNavigation() {
                 },
                 onLoginClick = {
                     navController.navigate(Screen.Login.route)
+                },
+                onProfileClick = {
+                    navController.navigate(Screen.Profile.route)
+                },
+                onHistoryClick = {
+                    navController.navigate(Screen.History.route)
                 }
             )
         }
@@ -57,14 +70,125 @@ fun MainNavigation() {
             val propertyId = backStackEntry.arguments?.getInt("propertyId") ?: 1
             PropertyDetailScreen(
                 propertyId = propertyId,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onBookingClick = {
+                    if (AuthRepository.isLoggedIn()) {
+                        navController.navigate(Screen.BookingCalendar.createRoute(propertyId))
+                    } else {
+                        navController.navigate(Screen.Login.route)
+                    }
+                }
+            )
+        }
+        composable(
+            route = Screen.BookingCalendar.route,
+            arguments = listOf(navArgument("propertyId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val propertyId = backStackEntry.arguments?.getInt("propertyId") ?: 1
+            BookingCalendarScreen(
+                propertyId = propertyId,
+                onBackClick = { navController.popBackStack() },
+                onNextClick = { startDate, endDate ->
+                    navController.navigate(Screen.PaymentMethod.createRoute(propertyId, startDate, endDate))
+                }
+            )
+        }
+        composable(
+            route = Screen.PaymentMethod.route,
+            arguments = listOf(
+                navArgument("propertyId") { type = NavType.IntType },
+                navArgument("startDate") { type = NavType.LongType },
+                navArgument("endDate") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val propertyId = backStackEntry.arguments?.getInt("propertyId") ?: 1
+            val startDate = backStackEntry.arguments?.getLong("startDate") ?: 0L
+            val endDate = backStackEntry.arguments?.getLong("endDate") ?: 0L
+            PaymentMethodScreen(
+                propertyId = propertyId,
+                startDate = startDate,
+                endDate = endDate,
+                onBackClick = { navController.popBackStack() },
+                onNextClick = { paymentMethod ->
+                    navController.navigate(Screen.PaymentConfirmation.createRoute(propertyId, startDate, endDate, paymentMethod))
+                }
+            )
+        }
+        composable(
+            route = Screen.PaymentConfirmation.route,
+            arguments = listOf(
+                navArgument("propertyId") { type = NavType.IntType },
+                navArgument("startDate") { type = NavType.LongType },
+                navArgument("endDate") { type = NavType.LongType },
+                navArgument("paymentMethod") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val propertyId = backStackEntry.arguments?.getInt("propertyId") ?: 1
+            val startDate = backStackEntry.arguments?.getLong("startDate") ?: 0L
+            val endDate = backStackEntry.arguments?.getLong("endDate") ?: 0L
+            val paymentMethod = backStackEntry.arguments?.getString("paymentMethod") ?: ""
+            PaymentConfirmationScreen(
+                propertyId = propertyId,
+                startDate = startDate,
+                endDate = endDate,
+                paymentMethod = paymentMethod,
+                onBackClick = { navController.popBackStack() },
+                onChangeDateClick = {
+                    navController.navigate(Screen.BookingCalendar.createRoute(propertyId)) {
+                        popUpTo(Screen.BookingCalendar.route) { inclusive = true }
+                    }
+                },
+                onPaymentSuccess = {
+                    navController.navigate(Screen.History.route) {
+                        popUpTo(Screen.Home.route)
+                    }
+                }
             )
         }
         composable(Screen.History.route) {
-            // Placeholder for History
+            HistoryScreen(
+                onBackClick = { navController.popBackStack() },
+                onBookingClick = { bookingId ->
+                    navController.navigate(Screen.BookingDetail.createRoute(bookingId))
+                },
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Screen.Profile.route) {
+                        popUpTo(Screen.Home.route)
+                    }
+                }
+            )
+        }
+        composable(
+            route = Screen.BookingDetail.route,
+            arguments = listOf(navArgument("bookingId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val bookingId = backStackEntry.arguments?.getString("bookingId") ?: ""
+            BookingDetailScreen(
+                bookingId = bookingId,
+                onBackClick = { navController.popBackStack() }
+            )
         }
         composable(Screen.Profile.route) {
-            // Placeholder for Profile
+            ProfileScreen(
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
+                onNavigateToHistory = {
+                    navController.navigate(Screen.History.route)
+                },
+                onLogoutSuccess = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

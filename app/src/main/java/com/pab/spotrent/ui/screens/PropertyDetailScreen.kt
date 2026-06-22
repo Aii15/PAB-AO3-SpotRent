@@ -33,7 +33,8 @@ import java.util.*
 @Composable
 fun PropertyDetailScreen(
     propertyId: Int,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onBookingClick: () -> Unit
 ) {
     val property = PropertyRepository.getPropertyById(propertyId) ?: return
     val scrollState = rememberScrollState()
@@ -97,10 +98,11 @@ fun PropertyDetailScreen(
 
                 // Back Button
                 Surface(
+                    onClick = { onBackClick() },
                     modifier = Modifier
+                        .statusBarsPadding()
                         .padding(24.dp)
-                        .size(40.dp)
-                        .clickable { onBackClick() },
+                        .size(40.dp),
                     shape = CircleShape,
                     color = Color.White
                 ) {
@@ -116,8 +118,10 @@ fun PropertyDetailScreen(
 
                 // Favorite Button
                 Surface(
+                    onClick = { /* Handle favorite */ },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
+                        .statusBarsPadding()
                         .padding(24.dp)
                         .size(40.dp),
                     shape = CircleShape,
@@ -211,7 +215,7 @@ fun PropertyDetailScreen(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFFEEEEEE)),
+                        border = BorderStroke(1.5.dp, Color(0xFFE0E0E0)), // Increased thickness
                         color = Color.White,
                         contentColor = BrandDarkGray
                     ) {
@@ -242,7 +246,7 @@ fun PropertyDetailScreen(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFFEEEEEE)),
+                        border = BorderStroke(1.5.dp, Color(0xFFE0E0E0)), // Increased thickness
                         color = Color.White,
                         contentColor = BrandDarkGray
                     ) {
@@ -328,35 +332,39 @@ fun PropertyDetailScreen(
         Surface(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(90.dp),
+                .fillMaxWidth(),
             color = Color.White,
             shadowElevation = 16.dp
         ) {
-            Row(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "IDR ${formatPrice(property.price)}",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = BrandDarkGray
-                    )
-                    Text(text = "Per Hari", fontSize = 12.sp, color = Color.Gray)
-                }
-                
-                Button(
-                    onClick = { },
+            Column(modifier = Modifier.navigationBarsPadding()) {
+                Row(
                     modifier = Modifier
-                        .width(160.dp)
-                        .height(48.dp),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
+                        .fillMaxWidth()
+                        .height(90.dp)
+                        .padding(start = 24.dp, end = 16.dp), // Reduced end padding to push button right
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Pesan", color = BrandDarkGray, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Column {
+                        Text(
+                            text = "IDR ${formatPrice(property.price)}",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = BrandDarkGray
+                        )
+                        Text(text = "Per Hari", fontSize = 12.sp, color = Color.Gray)
+                    }
+                    
+                    Button(
+                        onClick = onBookingClick,
+                        modifier = Modifier
+                            .width(160.dp)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
+                    ) {
+                        Text(text = "Pesan", color = BrandDarkGray, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    }
                 }
             }
         }
@@ -415,6 +423,6 @@ fun ReviewCard() {
 @Composable
 fun PropertyDetailScreenPreview() {
     SpotRentTheme {
-        PropertyDetailScreen(propertyId = 1, onBackClick = {})
+        PropertyDetailScreen(propertyId = 1, onBackClick = {}, onBookingClick = {})
     }
 }

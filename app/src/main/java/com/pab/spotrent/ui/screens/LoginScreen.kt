@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.pab.spotrent.R
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import com.pab.spotrent.data.repository.AuthRepository
 import com.pab.spotrent.ui.theme.BrandDarkBlue
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandLightGray
@@ -57,7 +58,8 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.4f),
+                .fillMaxHeight(0.4f)
+                .statusBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -82,14 +84,14 @@ fun LoginScreen(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.65f)
                 .align(Alignment.BottomCenter),
             shape = RoundedCornerShape(topStart = 48.dp, topEnd = 48.dp),
             color = Color.White
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    .fillMaxWidth()
                     .padding(horizontal = 32.dp, vertical = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -113,6 +115,8 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = BrandDarkGray,
+                        unfocusedTextColor = BrandDarkGray,
                         focusedContainerColor = BrandLightGray,
                         unfocusedContainerColor = BrandLightGray,
                         focusedBorderColor = Color.Transparent,
@@ -135,6 +139,8 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = BrandDarkGray,
+                        unfocusedTextColor = BrandDarkGray,
                         focusedContainerColor = BrandLightGray,
                         unfocusedContainerColor = BrandLightGray,
                         focusedBorderColor = Color.Transparent,
@@ -147,7 +153,13 @@ fun LoginScreen(
 
                 // Login Button
                 Button(
-                    onClick = onLoginSuccess,
+                    onClick = {
+                        if (AuthRepository.login(identifier, password)) {
+                            onLoginSuccess()
+                        } else {
+                            // Show error could be added here
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
