@@ -38,6 +38,7 @@ fun LoginScreen(
 ) {
     var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -130,7 +131,10 @@ fun LoginScreen(
                 // Password field
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { 
+                        password = it
+                        errorMessage = "" // clear error when typing
+                    },
                     placeholder = { Text("Password", color = Color.Gray) },
                     leadingIcon = {
                         Icon(Icons.Default.Lock, contentDescription = null, tint = BrandDarkGray)
@@ -149,15 +153,30 @@ fun LoginScreen(
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
 
                 // Login Button
                 Button(
                     onClick = {
-                        if (AuthRepository.login(identifier, password)) {
-                            onLoginSuccess()
+                        if (identifier.isBlank() || password.isBlank()) {
+                            errorMessage = "Email atau password Anda salah"
                         } else {
-                            // Show error could be added here
+                            if (AuthRepository.login(identifier, password)) {
+                                errorMessage = ""
+                                onLoginSuccess()
+                            } else {
+                                errorMessage = "Email atau password Anda salah"
+                            }
                         }
                     },
                     modifier = Modifier
