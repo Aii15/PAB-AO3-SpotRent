@@ -56,7 +56,8 @@ fun RegisterScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.4f),
+                .fillMaxHeight(0.4f)
+                .statusBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -81,14 +82,14 @@ fun RegisterScreen(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.65f)
                 .align(Alignment.BottomCenter),
             shape = RoundedCornerShape(topStart = 48.dp, topEnd = 48.dp),
             color = Color.White
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    .fillMaxWidth()
                     .padding(horizontal = 32.dp, vertical = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

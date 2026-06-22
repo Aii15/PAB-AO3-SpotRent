@@ -55,8 +55,8 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(380.dp)
-                    .clip(RoundedCornerShape(bottomStart = 64.dp, bottomEnd = 64.dp))
+                    .height(300.dp) // Reduced from 340 to give more space below
+                    .clip(RoundedCornerShape(bottomStart = 48.dp, bottomEnd = 48.dp))
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.bg_hero),
@@ -69,9 +69,10 @@ fun HomeScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
+                        .statusBarsPadding()
                         .padding(horizontal = 24.dp)
                 ) {
-                    Spacer(modifier = Modifier.height(48.dp))
+                    Spacer(modifier = Modifier.height(8.dp)) // More compact top bar
                     
                     // Top Bar
                     Row(
@@ -83,14 +84,14 @@ fun HomeScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.logo_spotrent),
                                 contentDescription = null,
-                                modifier = Modifier.size(40.dp)
+                                modifier = Modifier.size(36.dp) // Slightly smaller logo
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = "SpotRent",
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
+                                fontSize = 16.sp // Slightly smaller text
                             )
                         }
                         
@@ -101,38 +102,38 @@ fun HomeScreen(
                         ) {
                             Text(
                                 text = "Masuk",
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                                fontSize = 14.sp,
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = BrandDarkGray
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(40.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     Text(
                         text = "Temukan Lokasi\nSyuting Terbaik",
                         color = Color.White,
-                        fontSize = 32.sp,
+                        fontSize = 22.sp, // Slightly more compact
                         fontWeight = FontWeight.Bold,
-                        lineHeight = 40.sp
+                        lineHeight = 28.sp
                     )
                     Text(
                         text = "Dalam Sekejap",
                         color = Color.White,
-                        fontSize = 20.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     // Search Bar
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(28.dp),
+                            .height(44.dp), // Reduced height from 48
+                        shape = RoundedCornerShape(22.dp),
                         color = Color.White
                     ) {
                         Row(
@@ -178,12 +179,12 @@ fun HomeScreen(
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 24.dp), 
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(categories) { category ->
                     val isSelected = category == selectedCategory
                     Surface(
-                        modifier = Modifier.clickable { selectedCategory = category },
+                        onClick = { selectedCategory = category },
                         shape = RoundedCornerShape(20.dp),
                         color = if (isSelected) BrandYellow else Color.White,
                         border = if (isSelected) null else BorderStroke(1.dp, Color(0xFFEEEEEE)),
@@ -191,8 +192,8 @@ fun HomeScreen(
                     ) {
                         Text(
                             text = category,
-                            modifier = Modifier.padding(horizontal = 28.dp, vertical = 8.dp), // Increased horizontal padding to force peeking
-                            fontSize = 14.sp,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp), // More compact chips
+                            fontSize = 12.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             color = BrandDarkGray
                         )
@@ -216,7 +217,7 @@ fun HomeScreen(
                 chunkedProperties.forEach { rowItems ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        horizontalArrangement = Arrangement.spacedBy(20.dp) // More spacing for breath
                     ) {
                         rowItems.forEach { property ->
                             Box(modifier = Modifier.weight(1f)) {
@@ -227,7 +228,7 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.weight(1f))
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
             
@@ -238,7 +239,8 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 32.dp, start = 24.dp, end = 24.dp)
+                .navigationBarsPadding()
+                .padding(bottom = 16.dp, start = 24.dp, end = 24.dp)
                 .shadow(12.dp, RoundedCornerShape(32.dp))
                 .clip(RoundedCornerShape(32.dp))
                 .background(Color.White)
@@ -261,15 +263,15 @@ fun HomeScreen(
 @Composable
 fun PropertyCard(property: Property, onClick: () -> Unit) {
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .shadow(4.dp, RoundedCornerShape(16.dp)),
+            .shadow(2.dp, RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column {
-            Box(modifier = Modifier.fillMaxWidth().height(140.dp)) {
+            Box(modifier = Modifier.fillMaxWidth().aspectRatio(1f)) { // Tokopedia style: Square Image
                 Image(
                     painter = painterResource(id = property.thumbnailRes),
                     contentDescription = null,
@@ -314,69 +316,66 @@ fun PropertyCard(property: Property, onClick: () -> Unit) {
                 }
             }
 
-            Column(modifier = Modifier.padding(12.dp).fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "IDR ${formatPrice(property.price)}",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = BrandDarkGray,
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(start = 4.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_star),
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = BrandYellow
-                        )
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Text(
-                            text = property.rating.toString(),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = BrandDarkGray
-                        )
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(6.dp))
-                
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_location),
-                        contentDescription = null,
-                        modifier = Modifier.size(12.dp),
-                        tint = Color.Red
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = property.location,
-                        fontSize = 11.sp,
-                        color = Color.Gray,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(6.dp))
-                
+            Column(modifier = Modifier.padding(8.dp).fillMaxWidth()) {
                 Text(
                     text = property.name,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = BrandDarkGray,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 16.sp
+                )
+                
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = "IDR ${formatPrice(property.price)}",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = BrandDarkGray,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_location),
+                        contentDescription = null,
+                        modifier = Modifier.size(10.dp),
+                        tint = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = property.location,
+                        fontSize = 10.sp,
+                        color = Color.Gray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_star),
+                        contentDescription = null,
+                        modifier = Modifier.size(10.dp),
+                        tint = BrandYellow
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(
+                        text = property.rating.toString(),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Gray
+                    )
+                }
             }
         }
     }
@@ -386,7 +385,10 @@ fun PropertyCard(property: Property, onClick: () -> Unit) {
 fun BottomNavItem(iconRes: Int, label: String, isSelected: Boolean) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { }
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { }
+            .padding(8.dp)
     ) {
         Icon(
             painter = painterResource(id = iconRes),
