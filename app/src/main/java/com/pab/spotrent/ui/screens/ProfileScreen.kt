@@ -35,6 +35,7 @@ fun ProfileScreen(
     onNavigateToHistory: () -> Unit,
     onNavigateToAccountDetail: () -> Unit,
     onNavigateToChangePassword: () -> Unit,
+    onNavigateToAbout: () -> Unit,
     onLogoutSuccess: () -> Unit
 ) {
     val currentUser by AuthRepository.currentUser.collectAsState()
@@ -81,7 +82,7 @@ fun ProfileScreen(
                 ProfileMenuItem(
                     iconRes = R.drawable.ic_info,
                     label = "Tentang SpotRent",
-                    onClick = { /* Not implemented */ }
+                    onClick = onNavigateToAbout
                 )
                 ProfileMenuItem(
                     iconRes = R.drawable.ic_heart,
