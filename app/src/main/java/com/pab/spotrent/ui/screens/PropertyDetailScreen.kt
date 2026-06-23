@@ -586,6 +586,8 @@ private fun RatingDialog(
                     modifier = Modifier.fillMaxWidth().height(100.dp),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = BrandDarkGray,
+                        unfocusedTextColor = BrandDarkGray,
                         focusedBorderColor = BrandYellow,
                         unfocusedBorderColor = Color.LightGray
                     )

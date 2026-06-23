@@ -23,6 +23,7 @@ object AuthRepository {
         if (credentials != null && credentials.second == password) {
             _currentUser.value = credentials.first
             WishlistRepository.refreshWishlist()
+            BookingRepository.refreshBookings()
             return true
         }
         return false
@@ -70,6 +71,7 @@ object AuthRepository {
     fun logout() {
         _currentUser.value = null
         WishlistRepository.refreshWishlist()
+        BookingRepository.refreshBookings()
     }
 
     fun isLoggedIn(): Boolean = _currentUser.value != null

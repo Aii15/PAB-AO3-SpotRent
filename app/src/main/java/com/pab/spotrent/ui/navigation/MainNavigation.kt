@@ -38,7 +38,11 @@ fun MainNavigation() {
                     navController.navigate(Screen.Register.route)
                 },
                 onBackClick = {
-                    navController.popBackStack()
+                    if (!navController.popBackStack()) {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    }
                 }
             )
         }
