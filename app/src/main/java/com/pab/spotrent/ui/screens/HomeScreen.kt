@@ -231,28 +231,45 @@ fun HomeScreen(
             Column(
                 modifier = Modifier.padding(horizontal = 24.dp)
             ) {
-                // Duplicate properties to ensure scrollability
-                val filteredProperties = if (selectedCategory == "Semua") {
-                    properties
-                } else {
-                    properties.filter { it.type == selectedCategory }
+                val filteredProperties = properties.filter { property ->
+                    val matchesCategory = selectedCategory == "Semua" || property.type.equals(selectedCategory, ignoreCase = true)
+                    val matchesSearch = searchQuery.isEmpty() ||
+                            property.name.contains(searchQuery, ignoreCase = true) ||
+                            property.location.contains(searchQuery, ignoreCase = true)
+                    matchesCategory && matchesSearch
                 }
-                val chunkedProperties = filteredProperties.chunked(2)
-                chunkedProperties.forEach { rowItems ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(20.dp) // More spacing for breath
+
+                if (filteredProperties.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 48.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        rowItems.forEach { property ->
-                            Box(modifier = Modifier.weight(1f)) {
-                                PropertyCard(property = property, onClick = { onPropertyClick(property.id) })
+                        Text(
+                            text = "Tidak ada lokasi syuting yang cocok.",
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
+                    }
+                } else {
+                    val chunkedProperties = filteredProperties.chunked(2)
+                    chunkedProperties.forEach { rowItems ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(20.dp) // More spacing for breath
+                        ) {
+                            rowItems.forEach { property ->
+                                Box(modifier = Modifier.weight(1f)) {
+                                    PropertyCard(property = property, onClick = { onPropertyClick(property.id) })
+                                }
+                            }
+                            if (rowItems.size == 1) {
+                                Spacer(modifier = Modifier.weight(1f))
                             }
                         }
-                        if (rowItems.size == 1) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
+                        Spacer(modifier = Modifier.height(24.dp))
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
             
