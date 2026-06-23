@@ -1,4 +1,4 @@
-# Project PAB "SpotRent"
+# Project PAB (Mobile Dev) "SpotRent"
 
 ## Anggota Tim (Kelompok)
 
