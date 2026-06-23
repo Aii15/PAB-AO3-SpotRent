@@ -25,10 +25,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pab.spotrent.data.repository.PropertyRepository
 import com.pab.spotrent.data.repository.WishlistRepository
 import com.pab.spotrent.data.repository.AuthRepository
+import com.pab.spotrent.data.repository.BookingRepository
+import com.pab.spotrent.data.repository.ReviewRepository
 import com.pab.spotrent.ui.theme.BrandDarkBlue
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandYellow
 import com.pab.spotrent.ui.theme.SpotRentTheme
+import androidx.compose.ui.text.style.TextAlign
 import java.text.NumberFormat
 import java.util.*
 
@@ -39,11 +42,41 @@ fun PropertyDetailScreen(
     onBookingClick: () -> Unit,
     onLoginRequired: () -> Unit
 ) {
-    val property = PropertyRepository.getPropertyById(propertyId) ?: return
+    val properties by PropertyRepository.properties.collectAsState()
+    val property = properties.find { it.id == propertyId } ?: return
     val scrollState = rememberScrollState()
     
     val wishlistedIds by WishlistRepository.wishlistedIds.collectAsState()
     val isWishlisted = wishlistedIds.contains(propertyId)
+
+    val bookings by BookingRepository.bookings.collectAsState()
+    val isLoggedIn = AuthRepository.isLoggedIn()
+    
+    // Find an unreviewed successful booking for this property
+    val unreviewedBooking = if (isLoggedIn) {
+        bookings.find { it.propertyId == propertyId && it.status == "Berhasil" && !ReviewRepository.hasUserReviewedBooking(it.id) }
+    } else null
+
+    var showRatingDialog by remember { mutableStateOf(false) }
+
+    if (showRatingDialog && unreviewedBooking != null) {
+        RatingDialog(
+            propertyName = property.name,
+            onDismiss = { showRatingDialog = false },
+            onSubmit = { stars, commentText ->
+                val currentUser = AuthRepository.currentUser.value
+                val userName = currentUser?.fullName ?: "Anonim"
+                ReviewRepository.addReview(
+                    propertyId = property.id,
+                    bookingId = unreviewedBooking.id,
+                    userName = userName,
+                    rating = stars,
+                    comment = commentText
+                )
+                showRatingDialog = false
+            }
+        )
+    }
     
     // Images for pager from property model
     val propertyImages = property.detailImages
@@ -308,30 +341,62 @@ fun PropertyDetailScreen(
                     // Ulasan
                     Divider(color = Color(0xFFEEEEEE))
                     Spacer(modifier = Modifier.height(16.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "Ulasan", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_star),
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = BrandYellow
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "${property.rating} ( ${property.reviews} Ulasan )",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Normal // Changed from Bold as per request
-                        )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Ulasan", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_star),
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = BrandYellow
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "${property.rating} ( ${property.reviews} Ulasan )",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+                        if (unreviewedBooking != null) {
+                            val BrandLinkBlue = Color(0xFF3B5BDB)
+                            TextButton(
+                                onClick = { showRatingDialog = true }
+                            ) {
+                                Text(
+                                    text = "Tulis Ulasan",
+                                    color = BrandLinkBlue,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    val propertyReviews by ReviewRepository.getReviewsForProperty(propertyId).collectAsState(initial = emptyList())
+
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(5) {
-                            ReviewCard()
+                        if (propertyReviews.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "Belum ada ulasan.",
+                                    color = Color.Gray,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier.padding(vertical = 16.dp)
+                                )
+                            }
+                        } else {
+                            items(propertyReviews) { review ->
+                                ReviewCard(review = review)
+                            }
                         }
                     }
                     
@@ -384,11 +449,11 @@ fun PropertyDetailScreen(
 }
 
 @Composable
-fun ReviewCard() {
+fun ReviewCard(review: com.pab.spotrent.data.model.Review) {
     Surface(
         modifier = Modifier.width(280.dp),
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, Color(0xFFEEEEEE)),
+        border = BorderStroke(1.5.dp, Color(0xFFE0E0E0)),
         color = Color.White,
         contentColor = BrandDarkGray
     ) {
@@ -400,18 +465,18 @@ fun ReviewCard() {
                     color = Color(0xFF2E7D32)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text("A", color = Color.White, fontSize = 12.sp)
+                        Text(review.userAvatarText, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Text(text = "Anonim", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    Text(text = "DD-MM-YYYY", fontSize = 10.sp, color = Color.Gray)
+                    Text(text = review.userName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(text = review.date, fontSize = 10.sp, color = Color.Gray)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row {
-                repeat(5) {
+                repeat(review.rating) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_star),
                         contentDescription = null,
@@ -419,16 +484,117 @@ fun ReviewCard() {
                         tint = BrandYellow
                     )
                 }
+                repeat(5 - review.rating) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_star),
+                        contentDescription = null,
+                        modifier = Modifier.size(12.dp),
+                        tint = Color.LightGray
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Pellentesque Aliquam Massa Neque.",
+                text = review.comment,
                 fontSize = 12.sp,
                 color = BrandDarkGray,
-                maxLines = 3
+                maxLines = 3,
+                lineHeight = 16.sp
             )
         }
     }
+}
+
+@Composable
+fun RatingDialog(
+    propertyName: String,
+    onDismiss: () -> Unit,
+    onSubmit: (Int, String) -> Unit
+) {
+    var rating by remember { mutableStateOf(5) }
+    var comment by remember { mutableStateOf("") }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = {
+                    onSubmit(rating, comment)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = BrandYellow),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Kirim", color = BrandDarkGray, fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Batal", color = Color.Gray)
+            }
+        },
+        title = {
+            Text(
+                text = "Beri Rating & Ulasan",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = BrandDarkGray,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = propertyName,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Interactive Star Rating
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    for (i in 1..5) {
+                         IconButton(
+                             onClick = { rating = i },
+                             modifier = Modifier.size(36.dp)
+                         ) {
+                             Icon(
+                                 painter = painterResource(id = R.drawable.ic_star),
+                                 contentDescription = "$i Bintang",
+                                 modifier = Modifier.size(32.dp),
+                                 tint = if (i <= rating) BrandYellow else Color.LightGray
+                             )
+                         }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Comment Text Field
+                OutlinedTextField(
+                    value = comment,
+                    onValueChange = { comment = it },
+                    placeholder = { Text("Tulis komentar Anda di sini...") },
+                    modifier = Modifier.fillMaxWidth().height(100.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = BrandYellow,
+                        unfocusedBorderColor = Color.LightGray
+                    )
+                )
+            }
+        },
+        shape = RoundedCornerShape(24.dp),
+        containerColor = Color.White
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_7)

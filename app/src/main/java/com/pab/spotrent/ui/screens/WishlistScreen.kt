@@ -28,7 +28,8 @@ fun WishlistScreen(
     onPropertyClick: (Int) -> Unit
 ) {
     val wishlistedIds by WishlistRepository.wishlistedIds.collectAsState()
-    val wishlistedProperties = PropertyRepository.dummyProperties.filter { wishlistedIds.contains(it.id) }
+    val properties by PropertyRepository.properties.collectAsState()
+    val wishlistedProperties = properties.filter { wishlistedIds.contains(it.id) }
     val scrollState = rememberScrollState()
 
     Column(

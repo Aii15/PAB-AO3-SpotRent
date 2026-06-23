@@ -1,8 +1,6 @@
 package com.pab.spotrent.ui.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,8 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pab.spotrent.R
 import com.pab.spotrent.data.repository.BookingRepository
+import com.pab.spotrent.data.repository.AuthRepository
+import com.pab.spotrent.data.repository.ReviewRepository
 import com.pab.spotrent.ui.theme.BrandDarkGray
 import com.pab.spotrent.ui.theme.BrandYellow
+import androidx.compose.runtime.*
 import java.text.NumberFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -33,7 +34,13 @@ fun BookingDetailScreen(
     bookingId: String,
     onBackClick: () -> Unit
 ) {
-    val booking = BookingRepository.getBookingById(bookingId) ?: return
+    val bookings by BookingRepository.bookings.collectAsState()
+    val booking = bookings.find { it.id == bookingId } ?: return
+    
+    val reviews by ReviewRepository.reviews.collectAsState()
+    val myReview = reviews.find { it.bookingId == booking.id }
+    
+    var showRatingDialog by remember { mutableStateOf(false) }
 
     val diffInMillis = booking.endDate - booking.startDate
     val days = (TimeUnit.MILLISECONDS.toDays(diffInMillis) + 1).toInt()
@@ -68,10 +75,13 @@ fun BookingDetailScreen(
 
         HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 1.dp)
 
+        val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(24.dp)
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Status Header
@@ -163,6 +173,124 @@ fun BookingDetailScreen(
                     }
                 }
             }
+
+            if (myReview == null) {
+                if (booking.status == "Berhasil") {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.5.dp, Color(0xFFE0E0E0)),
+                        color = Color.White
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Bagaimana pengalaman Anda?",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                color = BrandDarkGray
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Beri penilaian untuk membantu meningkatkan kualitas layanan kami.",
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { showRatingDialog = true },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(44.dp),
+                                shape = RoundedCornerShape(22.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = BrandYellow)
+                            ) {
+                                Text(
+                                    text = "Beri Rating & Ulasan",
+                                    color = BrandDarkGray,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                Spacer(modifier = Modifier.height(16.dp))
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.5.dp, Color(0xFFE0E0E0)),
+                    color = Color.White
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Ulasan Anda",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                color = BrandDarkGray
+                            )
+                            Text(
+                                text = myReview.date,
+                                fontSize = 11.sp,
+                                color = Color.Gray
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row {
+                            repeat(myReview.rating) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_star),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = BrandYellow
+                                )
+                            }
+                            repeat(5 - myReview.rating) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_star),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = Color.LightGray
+                                )
+                            }
+                        }
+                        if (myReview.comment.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = myReview.comment,
+                                fontSize = 13.sp,
+                                color = BrandDarkGray,
+                                lineHeight = 18.sp
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (showRatingDialog) {
+                RatingDialog(
+                    propertyName = booking.propertyName,
+                    onDismiss = { showRatingDialog = false },
+                    onSubmit = { stars, commentText ->
+                        val currentUser = AuthRepository.currentUser.value
+                        val userName = currentUser?.fullName ?: "Anonim"
+                        ReviewRepository.addReview(
+                            propertyId = booking.propertyId,
+                            bookingId = booking.id,
+                            userName = userName,
+                            rating = stars,
+                            comment = commentText
+                        )
+                        showRatingDialog = false
+                    }
+                )
+            }
         }
     }
 }
@@ -198,4 +326,96 @@ private fun formatDateWithDay(millis: Long): String {
     val month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale("id", "ID"))
     val year = calendar.get(Calendar.YEAR)
     return "$dayName - $day $month $year"
+}
+
+@Composable
+fun RatingDialog(
+    propertyName: String,
+    onDismiss: () -> Unit,
+    onSubmit: (Int, String) -> Unit
+) {
+    var rating by remember { mutableStateOf(5) }
+    var comment by remember { mutableStateOf("") }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = {
+                    onSubmit(rating, comment)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = BrandYellow),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Kirim", color = BrandDarkGray, fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Batal", color = Color.Gray)
+            }
+        },
+        title = {
+            Text(
+                text = "Beri Rating & Ulasan",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = BrandDarkGray,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = propertyName,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Interactive Star Rating
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    for (i in 1..5) {
+                         IconButton(
+                             onClick = { rating = i },
+                             modifier = Modifier.size(36.dp)
+                         ) {
+                             Icon(
+                                 painter = painterResource(id = R.drawable.ic_star),
+                                 contentDescription = "$i Bintang",
+                                 modifier = Modifier.size(32.dp),
+                                 tint = if (i <= rating) BrandYellow else Color.LightGray
+                             )
+                         }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Comment Text Field
+                OutlinedTextField(
+                    value = comment,
+                    onValueChange = { comment = it },
+                    placeholder = { Text("Tulis komentar Anda di sini...") },
+                    modifier = Modifier.fillMaxWidth().height(100.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = BrandYellow,
+                        unfocusedBorderColor = Color.LightGray
+                    )
+                )
+            }
+        },
+        shape = RoundedCornerShape(24.dp),
+        containerColor = Color.White
+    )
 }

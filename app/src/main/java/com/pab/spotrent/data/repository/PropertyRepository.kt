@@ -2,9 +2,12 @@ package com.pab.spotrent.data.repository
 
 import com.pab.spotrent.R
 import com.pab.spotrent.data.model.Property
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 object PropertyRepository {
-    val dummyProperties = listOf(
+    private val _properties = MutableStateFlow<List<Property>>(listOf(
         Property(
             id = 1,
             name = "Kota Tua Jakarta",
@@ -80,9 +83,24 @@ object PropertyRepository {
             partnerName = "Balinese Nature Project",
             partnerLogoText = "BNP"
         )
-    )
+    ))
+
+    val properties: StateFlow<List<Property>> = _properties.asStateFlow()
+
+    val dummyProperties: List<Property>
+        get() = _properties.value
 
     fun getPropertyById(id: Int): Property? {
-        return dummyProperties.find { it.id == id }
+        return _properties.value.find { it.id == id }
+    }
+
+    fun updatePropertyRating(id: Int, newRating: Double, newReviewsCount: Int) {
+        _properties.value = _properties.value.map {
+            if (it.id == id) {
+                it.copy(rating = newRating, reviews = newReviewsCount)
+            } else {
+                it
+            }
+        }
     }
 }

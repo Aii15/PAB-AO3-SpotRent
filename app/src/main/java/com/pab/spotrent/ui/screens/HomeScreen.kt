@@ -42,7 +42,7 @@ fun HomeScreen(
     onProfileClick: () -> Unit,
     onHistoryClick: () -> Unit
 ) {
-    val properties = PropertyRepository.dummyProperties
+    val properties by PropertyRepository.properties.collectAsState()
     val categories = listOf("Semua", "Komersial", "Hunian", "Lanskap", "Studio", "Heritage")
     var selectedCategory by remember { mutableStateOf("Semua") }
     var searchQuery by remember { mutableStateOf("") }
