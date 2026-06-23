@@ -59,7 +59,6 @@ Sebelum menjalankan aplikasi, pastikan telah menginstal dan memenuhi spesifikasi
    ```bash
    git clone https://github.com/Aii15/PAB-AO3-SpotRent.git
    ```
-   bash
 2. **Buka di Android Studio**: Buka aplikasi Android Studio, pilih **Open**, lalu arahkan ke folder hasil clone.
 3. **Sync Project**: Tunggu proses sinkronisasi Gradle selesai secara otomatis.
 4. **Jalankan Aplikasi**: Hubungkan perangkat Android fisik (aktifkan USB Debugging) atau gunakan Emulator (direkomendasikan API Level 30+), lalu klik tombol **Run** (ikon Play hijau).
