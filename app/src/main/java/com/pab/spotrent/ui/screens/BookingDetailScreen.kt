@@ -329,7 +329,7 @@ private fun formatDateWithDay(millis: Long): String {
 }
 
 @Composable
-fun RatingDialog(
+private fun RatingDialog(
     propertyName: String,
     onDismiss: () -> Unit,
     onSubmit: (Int, String) -> Unit

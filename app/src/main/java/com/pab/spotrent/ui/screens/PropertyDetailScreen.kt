@@ -506,7 +506,7 @@ fun ReviewCard(review: com.pab.spotrent.data.model.Review) {
 }
 
 @Composable
-fun RatingDialog(
+private fun RatingDialog(
     propertyName: String,
     onDismiss: () -> Unit,
     onSubmit: (Int, String) -> Unit
