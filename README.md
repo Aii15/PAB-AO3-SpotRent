@@ -32,11 +32,11 @@
 
 ## Tech Stack yang Digunakan
 
-- **Bahasa**: [Kotlin](https://kotlinlang.org/)
-- **UI Framework**: [Jetpack Compose](https://developer.android.com/compose) (Modern Native Android UI)
-- **Desain UI/UX**: [Material 3](https://m3.material.io/)
-- **Navigasi**: [Compose Navigation](https://developer.android.com/jetpack/compose/navigation)
-- **Image Loader**: [Coil](https://coil-kt.github.io/coil/) (Coroutine Image Loader)
+- **Bahasa**: Kotlin
+- **UI Framework**: Jetpack Compose
+- **Desain UI/UX**: Material 3
+- **Navigasi**: Compose Navigation
+- **Image Loader**: Coil (Coroutine Image Loader)
 - **Penyimpanan Lokal**: SQLite (`UserDatabaseHelper`) untuk menyimpan data User, Booking, Review, dan Wishlist secara lokal.
 
 ---
