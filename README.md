@@ -37,7 +37,7 @@
 - **Desain UI/UX**: Material 3
 - **Navigasi**: Compose Navigation
 - **Image Loader**: Coil (Coroutine Image Loader)
-- **Penyimpanan Lokal**: SQLite (`UserDatabaseHelper`) untuk menyimpan data User, Booking, Review, dan Wishlist secara lokal.
+- **Database Lokal**: SQLite (`UserDatabaseHelper`) untuk menyimpan data User, Booking, Review, dan Wishlist secara lokal.
 
 ---
 
