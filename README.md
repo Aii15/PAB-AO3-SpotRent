@@ -2,7 +2,7 @@
 
 ## Anggota Tim (Kelompok)
 
-| Nama                         | NIM      | GitHub                                 |
+| Nama                         | NIM      |  Akun GitHub                                 |
 | :--------------------------- | :------- | :------------------------------------- |
 | **YUSRAN RIZQI LAKSONO**     | L0124125 | [@YYYusrn](https://github.com/YYYusrn) |
 | **JAUHAR MUFID TAMIR**       | L0124131 | [@jauhar7](https://github.com/jauhar7) |
