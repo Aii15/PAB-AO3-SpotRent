@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.pab.spotrent.data.repository.AuthRepository
 import com.pab.spotrent.data.repository.WishlistRepository
+import com.pab.spotrent.data.repository.BookingRepository
 import com.pab.spotrent.ui.navigation.MainNavigation
 import com.pab.spotrent.ui.theme.SpotRentTheme
 
@@ -14,6 +15,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         AuthRepository.initialize(applicationContext)
         WishlistRepository.initialize(applicationContext)
+        BookingRepository.initialize(applicationContext)
         enableEdgeToEdge()
         setContent {
             SpotRentTheme {

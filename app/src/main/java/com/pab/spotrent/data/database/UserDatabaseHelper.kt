@@ -6,12 +6,14 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.pab.spotrent.R
 import com.pab.spotrent.data.model.User
+import java.util.Calendar
+import com.pab.spotrent.data.model.Booking
 
 class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
         private const val DATABASE_NAME = "spotrent.db"
-        private const val DATABASE_VERSION = 3 // Incremented for wishlist schema change
+        private const val DATABASE_VERSION = 4 // Incremented for bookings schema change
 
         const val TABLE_USERS = "users"
         const val COLUMN_ID = "id"
@@ -25,6 +27,19 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         const val COLUMN_WISHLIST_ID = "id"
         const val COLUMN_WISHLIST_USER_ID = "userId"
         const val COLUMN_WISHLIST_PROPERTY_ID = "propertyId"
+
+        const val TABLE_BOOKINGS = "bookings"
+        const val COLUMN_BOOKING_ID = "id"
+        const val COLUMN_BOOKING_USER_ID = "userId"
+        const val COLUMN_BOOKING_PROPERTY_ID = "propertyId"
+        const val COLUMN_BOOKING_PROPERTY_NAME = "propertyName"
+        const val COLUMN_BOOKING_PROPERTY_LOCATION = "propertyLocation"
+        const val COLUMN_BOOKING_PROPERTY_THUMBNAIL = "propertyThumbnail"
+        const val COLUMN_BOOKING_START_DATE = "startDate"
+        const val COLUMN_BOOKING_END_DATE = "endDate"
+        const val COLUMN_BOOKING_TOTAL_PRICE = "totalPrice"
+        const val COLUMN_BOOKING_STATUS = "status"
+        const val COLUMN_BOOKING_PAYMENT_METHOD = "paymentMethod"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -50,9 +65,40 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         """.trimIndent()
         db.execSQL(createWishlistTableQuery)
 
+        val createBookingTableQuery = """
+            CREATE TABLE $TABLE_BOOKINGS (
+                $COLUMN_BOOKING_ID TEXT PRIMARY KEY,
+                $COLUMN_BOOKING_USER_ID INTEGER,
+                $COLUMN_BOOKING_PROPERTY_ID INTEGER,
+                $COLUMN_BOOKING_PROPERTY_NAME TEXT,
+                $COLUMN_BOOKING_PROPERTY_LOCATION TEXT,
+                $COLUMN_BOOKING_PROPERTY_THUMBNAIL INTEGER,
+                $COLUMN_BOOKING_START_DATE INTEGER,
+                $COLUMN_BOOKING_END_DATE INTEGER,
+                $COLUMN_BOOKING_TOTAL_PRICE INTEGER,
+                $COLUMN_BOOKING_STATUS TEXT,
+                $COLUMN_BOOKING_PAYMENT_METHOD TEXT
+            )
+        """.trimIndent()
+        db.execSQL(createBookingTableQuery)
+
         // Insert default dummy users
         insertDummyUser(db, 1, "admin", "admin@spotrent.com", "Admin SpotRent", "password123", "081234567890")
         insertDummyUser(db, 2, "user", "user@gmail.com", "John Doe", "password123", "08137465830")
+
+        // Insert dummy bookings
+        val dummyStart = Calendar.getInstance().apply {
+            set(2026, Calendar.JULY, 2, 0, 0, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        val dummyEnd = Calendar.getInstance().apply {
+            set(2026, Calendar.JULY, 4, 0, 0, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        insertDummyBooking(db, "BKG001", 1, 1, "Kota Tua Jakarta", "Jakarta Barat", R.drawable.prop_default, dummyStart, dummyEnd, 45000000L, "Berhasil", "Transfer Bank")
+        insertDummyBooking(db, "BKG001", 2, 1, "Kota Tua Jakarta", "Jakarta Barat", R.drawable.prop_default, dummyStart, dummyEnd, 45000000L, "Berhasil", "Transfer Bank")
     }
 
     private fun insertDummyUser(db: SQLiteDatabase, id: Int, username: String, email: String, fullName: String, password: String, phone: String) {
@@ -67,9 +113,40 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         db.insert(TABLE_USERS, null, values)
     }
 
+    private fun insertDummyBooking(
+        db: SQLiteDatabase,
+        id: String,
+        userId: Int,
+        propertyId: Int,
+        propertyName: String,
+        propertyLocation: String,
+        propertyThumbnail: Int,
+        startDate: Long,
+        endDate: Long,
+        totalPrice: Long,
+        status: String,
+        paymentMethod: String
+    ) {
+        val values = ContentValues().apply {
+            put(COLUMN_BOOKING_ID, id)
+            put(COLUMN_BOOKING_USER_ID, userId)
+            put(COLUMN_BOOKING_PROPERTY_ID, propertyId)
+            put(COLUMN_BOOKING_PROPERTY_NAME, propertyName)
+            put(COLUMN_BOOKING_PROPERTY_LOCATION, propertyLocation)
+            put(COLUMN_BOOKING_PROPERTY_THUMBNAIL, propertyThumbnail)
+            put(COLUMN_BOOKING_START_DATE, startDate)
+            put(COLUMN_BOOKING_END_DATE, endDate)
+            put(COLUMN_BOOKING_TOTAL_PRICE, totalPrice)
+            put(COLUMN_BOOKING_STATUS, status)
+            put(COLUMN_BOOKING_PAYMENT_METHOD, paymentMethod)
+        }
+        db.insert(TABLE_BOOKINGS, null, values)
+    }
+
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_WISHLIST")
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_BOOKINGS")
         onCreate(db)
     }
 
@@ -177,6 +254,64 @@ class UserDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         if (cursor.moveToFirst()) {
             do {
                 list.add(cursor.getInt(0))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return list
+    }
+
+    // Booking functions
+    fun addBooking(userId: Int, booking: Booking): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_BOOKING_ID, booking.id)
+            put(COLUMN_BOOKING_USER_ID, userId)
+            put(COLUMN_BOOKING_PROPERTY_ID, booking.propertyId)
+            put(COLUMN_BOOKING_PROPERTY_NAME, booking.propertyName)
+            put(COLUMN_BOOKING_PROPERTY_LOCATION, booking.propertyLocation)
+            put(COLUMN_BOOKING_PROPERTY_THUMBNAIL, booking.propertyThumbnail)
+            put(COLUMN_BOOKING_START_DATE, booking.startDate)
+            put(COLUMN_BOOKING_END_DATE, booking.endDate)
+            put(COLUMN_BOOKING_TOTAL_PRICE, booking.totalPrice)
+            put(COLUMN_BOOKING_STATUS, booking.status)
+            put(COLUMN_BOOKING_PAYMENT_METHOD, booking.paymentMethod)
+        }
+        val result = db.insert(TABLE_BOOKINGS, null, values)
+        return result != -1L
+    }
+
+    fun getUserBookings(userId: Int): List<Booking> {
+        val db = readableDatabase
+        val query = "SELECT * FROM $TABLE_BOOKINGS WHERE $COLUMN_BOOKING_USER_ID = ? ORDER BY $COLUMN_BOOKING_START_DATE DESC"
+        val cursor = db.rawQuery(query, arrayOf(userId.toString()))
+        val list = mutableListOf<Booking>()
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BOOKING_ID))
+                val propertyId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BOOKING_PROPERTY_ID))
+                val propertyName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BOOKING_PROPERTY_NAME))
+                val propertyLocation = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BOOKING_PROPERTY_LOCATION))
+                val propertyThumbnail = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BOOKING_PROPERTY_THUMBNAIL))
+                val startDate = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_BOOKING_START_DATE))
+                val endDate = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_BOOKING_END_DATE))
+                val totalPrice = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_BOOKING_TOTAL_PRICE))
+                val status = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BOOKING_STATUS))
+                val paymentMethod = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BOOKING_PAYMENT_METHOD))
+                
+                list.add(
+                    Booking(
+                        id = id,
+                        propertyId = propertyId,
+                        propertyName = propertyName,
+                        propertyLocation = propertyLocation,
+                        propertyThumbnail = propertyThumbnail,
+                        startDate = startDate,
+                        endDate = endDate,
+                        totalPrice = totalPrice,
+                        status = status,
+                        paymentMethod = paymentMethod
+                    )
+                )
             } while (cursor.moveToNext())
         }
         cursor.close()
